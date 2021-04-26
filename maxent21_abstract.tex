@@ -1,0 +1,101 @@
+%% LyX 2.3.4.2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\pagestyle{empty}
+\usepackage{amsmath}
+
+\makeatletter
+\@ifundefined{date}{}{\date{}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                          %%%%%
+%%%%%  LaTeX macro for subscription of abstracts to            %%%%%
+%%%%%                                                          %%%%%
+%%%%%               MAXENT 2019                                %%%%%
+%%%%%                                                          %%%%%
+%%%%%                                                          %%%%%
+%%%%% The total length of the contribution (including figures, %%%%%
+%%%%% references, etc.) must fit in a 16.0 cm x 23.0 cm frame  %%%%%
+%%%%% at 12pt type.                                            %%%%%
+%%%%% If figures are included they must be supplied as         %%%%%
+%%%%% Postscript files attached at the end of this document    %%%%%
+%%%%% stating clearly the file name.                           %%%%%
+%%%%%                                                          %%%%%
+%%%%% Please respect the blank lines.                          %%%%%
+%%%%%                                                          %%%%%
+%%%%% Your name and affiliation (including e-mail and fax):    %%%%%
+%%%%%                                                          %%%%%
+%%%%%                                                          %%%%%
+%%%%%                                                          %%%%%
+%%%%% You are requesting a (choose one):                       %%%%%
+%%%%%                                                          %%%%%
+%%%%%                                                          %%%%%
+%%%%% ( )    Oral presentation                                 %%%%%
+%%%%% ( )    Poster                                            %%%%%
+%%%%%                                                          %%%%%
+%%%%%                                                          %%%%%
+%%%%%                                                          %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                          %%%%%
+%%%%%  If you DO NOT need to include graphics you might        %%%%%
+%%%%%  delete the above line                                   %%%%%
+%%%%%                                                          %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\textwidth16cm
+\textheight23cm
+\topmargin-2.0cm
+\oddsidemargin0cm
+\parindent0pt
+
+\makeatother
+
+\begin{document}
+\title{SURROGATE-ENHANCED PARAMETER INFERENCE FOR FUNCTION-VALUED MODELS}
+\author{\underline{C.G. Albert}$^{1}$, U. Callies$^{2}$, U. v. Toussaint$^{1}$\\
+ (1) Max-Planck-Institut für Plasmaphysik, 85748 Garching, Germany\\
+ (2) Helmholtz-Zentrum Hereon, 21502 Geesthacht, Germany\\
+ albert@alumni.tugraz.at }
+
+\maketitle
+
+\begin{abstract}
+We present an approach to enhance performance and flexibility of Bayesian
+inference of model parameters based on observation of measured data.
+Going beyond usual surrogate-enhanced Monte-Carlo or optimization
+methods that focus on a scalar loss, we put emphasis on function-valued
+input and output of formally infinite dimension. For this purpose,
+the surrogate models are built on a combination of linear dimensionality
+reduction and Gaussian process regression for the map between reduced
+feature spaces. Since the decoded surrogate provides the full model
+output rather than only the loss, it is re-usable for multiple calibration
+measurements as well as different loss metrics and consequently allows
+for flexible marginalization over such quantities. We evaluate the
+method's performance based on a case study of a riverine diatom
+model {[}1{]}. As input data, this model uses six tunable scalar parameters as well
+as continuous time-series forcing data of weather and river discharge over a specific
+year. The output consists of continuous time-series
+data that are calibrated against corresponding measurements from the Geesthacht Weir
+station at the Elbe river.
+Results are compared to an existing model calibration using direct
+simulation runs without a surrogate {[}2{]}.
+
+
+\medskip\noindent References:
+
+{[}1{]} M. Scharfe et al. Ecol. Model. 220, 2173-2186 (2009).
+
+{[}2{]} U. Callies et al. Submitted to Environ. Model. Asses. (2021).
+
+\medskip\noindent Key Words: Parameter inference, Monte Carlo, surrogate model,
+Gaussian process regression, dimensionality reduction
+\end{abstract}
+\thispagestyle{empty}
+\end{document}

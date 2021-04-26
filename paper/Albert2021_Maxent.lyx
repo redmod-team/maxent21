@@ -1,0 +1,508 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass mdpi
+\begin_preamble
+%=================================================================
+% MDPI internal commands
+\firstpage{1} 
+\makeatletter 
+\setcounter{page}{\@firstpage} 
+\makeatother
+\pubvolume{1}
+\issuenum{1}
+\articlenumber{0}
+\pubyear{2021}
+\copyrightyear{2020}
+%\externaleditor{Academic Editor: Firstname Lastname} % For journal Automation, please change Academic Editor to "Communicated by"
+\datereceived{} 
+\dateaccepted{} 
+\datepublished{} 
+\hreflink{https://doi.org/} % If needed use \linebreak
+
+%=================================================================
+% Add packages and commands here. The following packages are loaded in our class file: fontenc, inputenc, calc, indentfirst, fancyhdr, graphicx, epstopdf, lastpage, ifthen, lineno, float, amsmath, setspace, enumitem, mathpazo, booktabs, titlesec, etoolbox, tabto, xcolor, soul, multirow, microtype, tikz, totcount, changepage, paracol, attrib, upgreek, cleveref, amsthm, hyphenat, natbib, hyperref, footmisc, url, geometry, newfloat, caption
+\usepackage{tikz}
+
+%=================================================================
+% Full title of the paper (Capitalized)
+\Title{Gaussian processes for data fulfilling linear differential equations}
+
+% MDPI internal command: Title for citation in the left column
+% \TitleCitation{Title}
+
+% Author Orchid ID: enter ID or remove command
+\newcommand{\orcidauthorA}{0000-0003-4773-416X} % Add \orcidA{} behind the author's name
+%\newcommand{\orcidauthorB}{0000-0000-000-000X} % Add \orcidB{} behind the author's name
+
+% Authors, for the paper (add full first names)
+\Author{Christopher G. Albert $^{1}$\orcidA{}}
+
+% MDPI internal command: Authors, for metadata in PDF
+\AuthorNames{Christopher G. Albert}
+
+% MDPI internal command: Authors, for citation in the left column
+% \AuthorCitation{Lastname, F.; Lastname, F.; Lastname, F.}
+% If this is a Chicago style journal: Lastname, Firstname, Firstname Lastname, and Firstname Lastname.
+
+% Affiliations / Addresses (Add [1] after \address if there is only one affiliation.)
+\address{%
+$^{1}$ \quad Max-Planck-Institut für Plasmaphysik, Boltzmannstr. 2, 85748 Garching, Germany; albert@alumni.tugraz.at}%\\
+%$^{2}$ \quad Affiliation 2; e-mail@e-mail.com}
+
+% Contact information of the corresponding author
+\corres{Correspondence: albert@alumni.tugraz.at}
+
+% Current address and/or shared authorship
+%\firstnote{Current address: Affiliation 3} 
+%\secondnote{These authors contributed equally to this work.}
+% The commands \thirdnote{} till \eighthnote{} are available for further notes
+
+%\simplesumm{} % Simple summary
+
+%\conference{} % An extended version of a conference paper
+
+% Abstract (Do not insert blank lines, i.e. \\) 
+\abstract{A method to reconstruct fields, source strengths and
+physical parameters based on Gaussian process regression is presented 
+for the case where data are known to fulfill a given linear differential 
+equation with localized sources. The approach is applicable to a wide 
+range of data from physical measurements and numerical simulations. It is 
+based on the well-known invariance of the Gaussian under linear 
+operators, in particular differentiation. Instead of using a generic 
+covariance function to represent data from an unknown field, the space 
+of possible covariance functions is restricted to allow only Gaussian 
+random fields that fulfill the homogeneous differential equation. 
+The resulting tailored kernel functions lead to more reliable regression 
+compared to using a generic kernel and makes some hyperparameters
+directly interpretable. 
+For differential equations representing laws of physics such a choice 
+limits realizations of random fields to physically possible solutions. 
+Source terms are added by superposition and their strength estimated 
+in a probabilistic fashion, together with possibly unknown 
+hyperparameters with physical meaning in the differential operator.}
+
+% Keywords
+\keyword{Gaussian process regression; field reconstruction; partial differential equations; meshless methods}
+
+% \externalbibliography{yes}
+
+\usepackage{bm}
+% \renewcommand{\baselinestretch}{1}
+\end_preamble
+\options proceedings,conferenceproceedings,submit,pdftex
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package 
+\inputencoding utf8
+\fontencoding T1
+\font_roman "times" "default"
+\font_sans "default" "default"
+\font_typewriter "mathptmx" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\pdf_bookmarks false
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks true
+\pdf_backref section
+\pdf_pdfusetitle false
+\pdf_quoted_options "linkcolor=blue"
+\papersize default
+\use_geometry false
+\use_package amsmath 2
+\use_package amssymb 2
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style Definitions/mdpi
+\biblio_options sort&compress,sectionbib
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date true
+\justification true
+\use_refstyle 0
+\use_minted 0
+\fontcolor #000000
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\headsep 0.25cm
+\footskip 0.25cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle fancy
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\tht}{\vartheta}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\ph}{\varphi}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\balpha}{\boldsymbol{\alpha}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\btheta}{\boldsymbol{\theta}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\bJ}{\boldsymbol{J}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\bGamma}{\boldsymbol{\Gamma}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\bOmega}{\boldsymbol{\Omega}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\d}{\mathrm{d}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\t}[1]{\text{#1}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\m}{\text{m}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\v}[1]{\mathbf{#1}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\u}[1]{\underline{#1}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\renewcommand{\t}[1]{\mathbf{#1}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\bA}{\boldsymbol{A}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\bB}{\boldsymbol{B}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\c}{\mathrm{c}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\difp}[2]{\frac{\partial#1}{\partial#2}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\xset}{{\bf x}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\zset}{{\bf z}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\qset}{{\bf q}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\pset}{{\bf p}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\wset}{{\bf w}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\ei}{{\bf \mathrm{ei}}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\ie}{{\bf \mathrm{ie}}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\pt}{\partial}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\no}{\nonumber}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\del}{\delta}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\tg}{\tau_{g}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\tba}{\bar{\tau}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\s}{\mathrm{s}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\a}{\mathrm{a}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\f}{\mathrm{f}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Rasmussen2006"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Theory
+\end_layout
+
+\begin_layout Standard
+Want a surrogate for
+\begin_inset Formula 
+\begin{equation}
+\Phi:(\mathbb{H}_{1},\mathbb{R}^{n})\rightarrow(\mathbb{H}_{2},\mathbb{R}^{m}).
+\end{equation}
+
+\end_inset
+
+Inner product in Hilbert spaces and its approximation for a finite set of
+ support points is given by
+\begin_inset Formula 
+\begin{equation}
+\left\langle u,v\right\rangle =\int_{\Omega}u(t)v(t)\,\d t\approx\frac{1}{N_{t}}\sum_{k=1}^{N_{t}}u(t_{k})v(t_{k}).
+\end{equation}
+
+\end_inset
+
+Want to find a surrogate
+\begin_inset Formula 
+\begin{equation}
+\tilde{\Phi}:(\mathbb{H}_{1},\mathbb{R}^{n})\rightarrow\mathbb{R}^{p+n}\rightarrow\mathbb{R}^{q+m}\rightarrow(\mathbb{H}_{2},\mathbb{R}^{m}).
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Reduced model:
+\begin_inset Formula 
+\begin{align}
+f(z,t) & =\sum_{k}z_{k}\phi_{k}(t)+\sigma\\
+p(f|z,t) & =\mathcal{N}(\sum_{k}z_{k}\phi_{k}(t),\sigma^{2})
+\end{align}
+
+\end_inset
+
+Regression model:
+\begin_inset Formula 
+\[
+p(z|x)=\mathcal{N}(E(x),\sigma_{z}^{\,2}(x))
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Reduction:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align}
+p(f|x,t) & =\int dzp(f|z,t)p(z|x)\\
+ & =\int dz\,\exp\left(-\frac{(f-\sum_{k}z_{k}\phi_{k}(t))^{2}}{2\sigma^{2}}\right)\exp\left(-\frac{(z-E(x))^{2}}{2\sigma_{z}^{\,2}(x)}\right)\\
+\end{align}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Total:
+\begin_inset Formula 
+\begin{equation}
+p(x,f|y_{t},g_{t})=\frac{p(y_{t},g_{t}|x,f)p(x,f)}{p(y_{t},g_{t})}
+\end{equation}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align*}
+p(y_{t},g_{t}|x,f) & =\sum_{y,g}p(y_{t},g_{t},y,g|x,f)\\
+ & =\sum_{y,g}p(y_{t},g_{t}|y,g,x,f)p(y,g|x,f)
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Section
+\end_layout
+
+\begin_layout Section*
+Summary and Outlook
+\end_layout
+
+\begin_layout Section*
+Acknowledgments
+\end_layout
+
+\begin_layout Standard
+This study is a contribution to the 
+\emph on
+Reduced Complexity Models
+\emph default
+ grant number ZT-I-0010 funded by the Helmholtz Association of German Research
+ Centers.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{paracol}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+References
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintCited"
+bibfiles "../../library"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
