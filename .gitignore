@@ -1,0 +1,10 @@
+*.aux
+*.gz
+*.pdf
+*~
+*.out
+*.log
+*.fls
+*_latexmk
+paper/Definitions
+paper/Albert2021_Maxent.tex
