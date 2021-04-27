@@ -456,6 +456,16 @@ p(y_{t},g_{t}|x,f) & =\sum_{y,g}p(y_{t},g_{t},y,g|x,f)\\
 Section
 \end_layout
 
+\begin_layout Section
+Ideas
+\end_layout
+
+\begin_layout Itemize
+Detailed balance violated by iterative construction of surrogate.
+ When new point is added, should re-run through Markov chain using the surrogate
+ up to this point (at least one correlation time back).
+\end_layout
+
 \begin_layout Section*
 Summary and Outlook
 \end_layout
