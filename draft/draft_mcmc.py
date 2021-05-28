@@ -9,8 +9,6 @@ def pgauss(x):
 def step(x, dx, r, p):
     xguess = x + dx
     A = p(xguess)/p(x)
-    if A >= 1:
-        return xguess, True
     if A >= r:
         return xguess, True
     return x, False
@@ -37,7 +35,7 @@ acceptance_rate = np.sum(acc[:nwarm])/nwarm
 target_rate = 0.35
 dx = dx*np.exp(acceptance_rate/target_rate-1.0)
 
-for k in range(nwarm + 1, nstep):
+for k in range(nwarm, nstep):
     x[k+1], acc[k] = step(x[k], dx[k], r[k], pgauss)
 
 plt.figure()
