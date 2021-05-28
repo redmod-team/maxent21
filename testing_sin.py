@@ -10,7 +10,7 @@ from profit.util.halton import halton
 
 np.random.seed(42)
 
-nsamp0 = 32
+nsamp0 = 64
 
 mean = np.array([1.0, 1.0])
 stdev = np.array([0.2, 0.3])
@@ -70,14 +70,14 @@ from scipy.optimize import minimize
 from warnings import catch_warnings
 from warnings import simplefilter
 
-k = GPy.kern.Matern52(2, ARD=True, lengthscale=0.2, variance=0.1**2)
+k = GPy.kern.Matern52(2, ARD=True, lengthscale=0.1, variance=1)
 mf = GPy.mappings.Linear(2, 1)
 
 X = r.copy()
 y = np.array([cost(box_to_actual(xk)) for xk in X])
 
 model = GPRegression(X, y.reshape(-1,1), k,
-        noise_var=1e-4, mean_function=mf)
+        noise_var=1e-4)#, mean_function=mf)
 model.optimize('bfgs')
 print(model)
 #%%
