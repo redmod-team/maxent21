@@ -3,26 +3,56 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.optimize import leastsq
-from scipy.special import erfinv, erf
 from scipy.stats import norm
 from profit.util.halton import halton
+from mcmc_common import *
 
 np.random.seed(42)
 
-nsamp0 = 64
+nsamp0 = 32
+
+sig2meas = 0.02**2  # Measurement variance
 
 mean = np.array([1.0, 1.0])
-stdev = np.array([0.2, 0.3])
+
+# Uniform distribution
+length = np.array([2.0, 2.0])
 
 def box_to_actual(x):
-    return mean + stdev*np.sqrt(2.0)*erfinv(2.0*x - 1.0)
+    return mean + (x - 0.5)*length
 
 def actual_to_box(r):
-    return 0.5*(1.0 + erf((r - mean)/(np.sqrt(2.0)*stdev)))
+    return (r - mean)/length + 0.5
 
-r = halton(nsamp0, 2)
+# Normal distribution
+# stdev = np.array([0.2, 0.3])
+#
+# def box_to_actual(x):
+#     return mean + stdev*np.sqrt(2.0)*erfinv(2.0*x - 1.0)
+#
+# def actual_to_box(r):
+#     return 0.5*(1.0 + erf((r - mean)/(np.sqrt(2.0)*stdev)))
+
+# Cauchy distribution
+# thstar = np.array([0.2, 0.2])
+# Pstar = 0.9
+# b = thstar*np.arctan(np.pi/2.0*Pstar)
+# def box_to_actual(x):
+#     return mean + b*np.tan(np.pi*(x - 0.5))
+
+# def actual_to_box(r):
+#     return 1.0/np.pi*(np.arctan((r - mean)/b)) + 0.5
+
+# Sample only in circle
+r = halton(1024, 2)
+# r = r[np.sum((r - 0.5)**2, 1) < 0.25, :]
+r = r[:nsamp0, :]
+
 rn = box_to_actual(r)
 
+plt.figure()
+plt.plot(rn[:,0], rn[:,1], 'x')
+plt.axis('equal')
 #%%
 nt = 250
 t = np.linspace(0, 2.0*(1.0-1.0/nt), nt)
@@ -30,7 +60,10 @@ t = np.linspace(0, 2.0*(1.0-1.0/nt), nt)
 xpath = []
 def blackbox(x):
     xpath.append(x)
-    return x[0]*(t - x[1])**3
+    ret = x[0]*(t - x[1])**3
+    #ret[ret<-10] = -10
+    #ret[ret>10] = 10
+    return ret
 
 # Reference values for optimum
 xref = np.array([1.15, 1.4])
@@ -40,7 +73,7 @@ def residuals(x):
     return yref - blackbox(x)
 
 def cost(x):
-    return np.sum(residuals(x)**2)/nt
+    return np.sum(residuals(x)**2)/(nt*2.0*sig2meas)
 
 # %%
 rstart = mean
@@ -69,36 +102,36 @@ from scipy.optimize import minimize
 from warnings import catch_warnings
 from warnings import simplefilter
 
-k = GPy.kern.Matern52(2, ARD=True, lengthscale=0.1, variance=1)
+kernel = GPy.kern.Matern52(2, ARD=True, lengthscale=2.0/nsamp0, variance=1)
 mf = GPy.mappings.Linear(2, 1)
 
 X = r.copy()
-y = np.array([cost(box_to_actual(xk)) for xk in X])
+y = np.array([cost(box_to_actual(xk))*2.0*sig2meas for xk in X])
 
-model = GPRegression(X, y.reshape(-1,1), k,
-        noise_var=1e-4)#, mean_function=mf)
+model = GPRegression(X, y.reshape(-1,1), kernel,
+        noise_var=1e-4, mean_function=mf)
 model.optimize('bfgs')
 print(model)
-#%%
+# %% Bayesian optimization
 
 ymin = np.array([np.min(y)])
 
-def surrogate(model: GPRegression, X):
+def surrogate(X):
     with catch_warnings():
         simplefilter("ignore")
         mu, var = model.predict(X, full_cov=False)
-        return mu, np.sqrt(var)
+        return mu/(2.0*sig2meas), np.sqrt(var)/(2.0*sig2meas)
 
-def acquisition(x, model):
-    mu, std = surrogate(model, x.reshape(-1,2))
+def acquisition(x):
+    mu, std = surrogate(x.reshape(-1, 2))
     std = std + 1e-31
     probs = (ymin[-1] - mu)*norm.cdf(ymin[-1], mu, std) + \
         std**2 * norm.pdf(ymin[-1], mu, std)
     return -probs
 
-def opt_acquisition(X, model):
+def opt_acquisition():
     Xsamples = np.random.rand(1024, 2)
-    scores = acquisition(Xsamples, model)
+    scores = acquisition(Xsamples)
     ix = np.argmin(scores)
     return Xsamples[ix, :]
 
@@ -111,9 +144,9 @@ def opt_acquisition(X, model):
 #     return x0
 
 for i in range(nsamp0):
-    x = opt_acquisition(X, model)
-    ytrue = cost(box_to_actual(x))
-    yest, _ = surrogate(model, x.reshape(-1, 2))
+    x = opt_acquisition()
+    ytrue = cost(box_to_actual(x))*(2.0*sig2meas)
+    yest, _ = surrogate(x.reshape(-1, 2))
     print(x, yest, ytrue)
     # add the data to the dataset
     X = np.vstack((X, x))
@@ -142,72 +175,42 @@ plt.plot(yref)
 plt.plot(blackbox(box_to_actual(xopt)), '--')
 plt.legend(['reference', 'start', 'optimized'])
 
-# %%
+plt.figure()
+for k in range(len(X)):
+    xt = box_to_actual(X[k, :])
+    plt.semilogy(k, cost(xt), 'rx')
+
+for k in range(len(X)):
+    xt = box_to_actual(X[k, :])
+    #ypred, yvar = model.predict(actual_to_box(xt).reshape(-1,2))
+    ypred, yvar = surrogate(actual_to_box(xt).reshape(-1,2))
+    plt.semilogy([k, k],
+        [ypred[0,0],
+         ypred[0,0] + max(2*np.sqrt(yvar[0,0]), 0.1*ypred[0,0])], 'k-')
+
+
 plt.figure()
 plt.semilogy(ymin)
 
-# # %% MCMC
+# %% MCMC
 
-sig2meas = 0.02**2  # Measurement variance
-
+niwarm = 2
 nwarm = 500
 nmc = 10000
 
 nvar = 2
-
 nstep = nwarm + nmc
 
-# Input values and step sizes
-x = np.empty((nstep + 1, nvar))
-x[0, :] = box_to_actual(xopt)
-sigprior = np.sqrt(sig2meas)*x[0, :]
-dx = np.random.randn(nstep, nvar)*sigprior
-xguess = np.empty(nvar)
-
-acc = np.zeros((nstep + 1, nvar), dtype=bool)  # Acceptance rates
-r = np.random.rand(nstep, nvar)  # Pre-computed random numbers
-
-# Warmup
-for k in range(nwarm):
-    x[k+1, :] = x[k, :]
-    pold = np.exp(-cost(x[k,:])/(2.0*sig2meas))  # likelihood
-    for i in range(nvar):
-        xguess[:] = x[k+1, :]
-        xguess[i] += dx[k,i]
-        pnew = np.exp(-cost(xguess)/(2.0*sig2meas))
-        A = pnew/pold
-        if A >= r[k,i]:
-            x[k+1, :] = xguess
-            pold = pnew
-            acc[k,i] = True
+dx = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*box_to_actual(xopt)
+x, acc = mcmc(box_to_actual(xopt), dx, niwarm, nwarm, nmc, cost)
 
 plt.figure()
 plt.plot(x[:nwarm, 0], x[:nwarm, 1])
 plt.title('Warmup')
 
 plt.figure()
-plt.plot([np.exp(-cost(x[k,:])/(2.0*sig2meas)) for k in range(nwarm)])
+plt.plot([np.exp(-cost(x[k,:])) for k in range(nwarm)])
 plt.title('Warmup')
-
-acceptance_rate = np.sum(acc[:nwarm], 0)/nwarm
-print('Warmup acceptance rate: ', acceptance_rate)
-
-target_rate = 0.35
-dx = dx*np.exp(acceptance_rate/target_rate-1.0)
-
-for k in range(nwarm, nstep):
-    x[k+1, :] = x[k, :]
-    pold = np.exp(-cost(x[k,:])/(2.0*sig2meas))  # likelihood
-    for i in range(nvar):
-        xguess[:] = x[k+1, :]
-        xguess[i] += dx[k,i]
-        pnew = np.exp(-cost(xguess)/(2.0*sig2meas))
-        A = pnew/pold
-        if A >= r[k, i]:
-            x[k+1, :] = xguess
-            pold = pnew
-            acc[k,i] = True
-
 
 plt.figure()
 plt.plot(x[:, 0], x[:, 1])
@@ -234,98 +237,22 @@ pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 1])
 
 # %% Delayed acceptance MCMC
 
-# First testing surrogate
 def cost_surrogate(x):
-    return model.predict(actual_to_box(x).reshape(-1,2))[0][0,0]
-
-plt.figure()
-for k in range(len(X)):
-    xt = box_to_actual(X[k, :])
-    ypred, yvar = model.predict(actual_to_box(xt).reshape(-1,2))
-    plt.semilogy(k, cost(xt), 'rx')
-    plt.semilogy([k, k], [ypred[0,0], ypred[0,0] + 2*np.sqrt(yvar[0,0])], 'k-')
-
-sig2meas = 0.02**2  # Measurement variance
-
-nwarm = 500
-nmc = 10000
-
-nvar = 2
-
-nstep = nwarm + nmc
+    return surrogate(actual_to_box(x).reshape(-1,2))[0]
 
 # Input values and step sizes
-x = np.empty((nstep + 1, nvar))
-x[0, :] = box_to_actual(xopt)
-sigprior = np.sqrt(sig2meas)*x[0, :]
-dx = np.random.randn(nstep, nvar)*sigprior
-xguess = np.empty(nvar)
+dx = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*x[0, :]
 
-acc1 = np.zeros((nstep + 1, nvar), dtype=bool)  # Acceptance rates sur
-r1 = np.random.rand(nstep, nvar)  # Pre-computed random numbers for sur
-acc2 = np.zeros((nstep + 1, nvar), dtype=bool)  # Acceptance rates true
-r2 = np.random.rand(nstep, nvar)  # Pre-computed random numbers for true
-
-# Warmup
-for k in range(nwarm):
-    x[k+1, :] = x[k, :]
-    pold_sur = np.exp(-cost_surrogate(x[k, :])/(2.0*sig2meas))
-    pold = np.exp(-cost(x[k, :])/(2.0*sig2meas))
-    for i in range(nvar):
-        xguess[:] = x[k+1, :]
-        xguess[i] += dx[k, i]
-        pnew_sur = np.exp(-cost_surrogate(xguess)/(2.0*sig2meas))
-        A_sur = pnew_sur/pold_sur
-        if A_sur >= r1[k, i]:
-            acc1[k, i] = True
-        else:  # Reject according to surrogate
-            continue
-
-        pnew = np.exp(-cost(xguess)/(2.0*sig2meas))
-        A = (pnew/pold)/A_sur
-        if A >= r2[k, i]:
-            x[k+1, :] = xguess
-            pold = pnew
-            pold_sur = pnew_sur
-            acc2[k, i] = True
+x, acc1, acc2 = mcmc(
+    box_to_actual(xopt), dx, niwarm, nwarm, nmc, cost, cost_surrogate)
 
 plt.figure()
 plt.plot(x[:nwarm, 0], x[:nwarm, 1])
 plt.title('Warmup path')
 
 plt.figure()
-plt.plot([np.exp(-cost_surrogate(x[k, :])/(2.0*sig2meas)) for k in range(nwarm)])
+plt.plot([np.exp(-cost_surrogate(x[k, :])[0]) for k in range(nwarm)])
 plt.title('Warmup likelihood')
-
-acceptance_rate = np.sum(acc2[:nwarm], 0)/nwarm
-print('Warmup acceptance rate: ', acceptance_rate)
-
-target_rate = 0.35
-dx = dx*np.exp(acceptance_rate/target_rate-1.0)
-
-
-for k in range(nwarm, nstep):
-    x[k+1, :] = x[k, :]
-    pold_sur = np.exp(-cost_surrogate(x[k, :])/(2.0*sig2meas))
-    pold = np.exp(-cost(x[k, :])/(2.0*sig2meas))
-    for i in range(nvar):
-        xguess[:] = x[k+1, :]
-        xguess[i] += dx[k, i]
-        pnew_sur = np.exp(-cost_surrogate(xguess)/(2.0*sig2meas))
-        A_sur = pnew_sur/pold_sur
-        if A_sur >= r1[k, i]:
-            acc1[k, i] = True
-        else:  # Reject according to surrogate
-            continue
-
-        pnew = np.exp(-cost(xguess)/(2.0*sig2meas))
-        A = (pnew/pold)/A_sur
-        if A >= r2[k, i]:
-            x[k+1, :] = xguess
-            pold = pnew
-            pold_sur = pnew_sur
-            acc2[k, i] = True
-
 
 plt.figure()
 plt.plot(x[:, 0], x[:, 1])
@@ -350,3 +277,196 @@ pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 0])
 pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 1])
 
 # %%
+from profit.sur.linear_reduction import KarhunenLoeve
+from sklearn.linear_model import LinearRegression
+
+X = r.copy()
+y = np.array([blackbox(box_to_actual(xk)) for xk in X])
+
+# %%
+kl = KarhunenLoeve(y, tol=1e1)
+
+fig, ax = plt.subplots(figsize=(5.4, 3.2))
+ax.loglog(1, kl.w[-1]/kl.w[-1], 'x')
+for k in range(kl.w.shape[0]):
+    ax.loglog(k+1, kl.w[-k-1]/kl.w[-1], 'x')
+ax.set_xlabel('Index')
+ax.set_ylabel('Eigenvalues')
+fig.tight_layout()
+
+ztrain = kl.project(y)
+
+fig, ax = plt.subplots(figsize=(5.4, 3.2))
+ax.plot(kl.ymean)
+ax.plot(-kl.features()[:,::-1])
+ax.set_xlabel(r'$\tau$')
+ax.set_ylabel(r'$g(\tau)$')
+ax.legend(['mean'] + [f'$\\varphi_{k+1}$' for k in range(3)], loc='upper right')
+fig.tight_layout()
+
+# %%
+
+surs = []
+z = kl.project(y)
+
+models = []
+for zk in z:
+    kernel = GPy.kern.Matern52(2, ARD=True, lengthscale=2.0/nsamp0, variance=1)
+    mf = GPy.mappings.Linear(2, 1)
+    model = GPRegression(X, zk.reshape(-1, 1), kernel,
+        noise_var=1e-4, mean_function=mf)
+    model.optimize('bfgs')
+    print(model)
+    models.append(model)
+
+# %%
+neig = len(kl.w)
+mus = np.empty((neig, nsamp0))
+vars = np.empty((neig, nsamp0))
+for k, model in enumerate(models):
+    mu, var = model.predict(X*1.01, full_cov=False)
+    mus[k, :] = mu.flat
+    vars[k, :] = var.flat
+
+# %% Delayed acceptance MCMC II
+
+def residuals_y(y):
+    return yref - y
+
+
+def cost_y(y):
+    return np.sum(residuals_y(y)**2, 1)/(nt*2.0*sig2meas)
+
+
+def surrogate_kl(X):
+    with catch_warnings():
+        simplefilter("ignore")
+        mus = np.empty((neig, X.shape[0]))
+        for k, model in enumerate(models):
+            mu, _ = model.predict(X, full_cov=False)
+            mus[k, :] = mu.flat
+
+        ymu, yvars = kl.lift(mus, vars)
+        ycost = cost_y(ymu)
+
+    return ycost, 0.0  # TODO: variance
+
+
+def cost_surrogate_kl(x):
+    return surrogate_kl(actual_to_box(x).reshape(-1,2))[0]
+
+
+# Input values and step sizes
+dx = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*x[0, :]
+
+
+x, acc1, acc2 = mcmc(
+    box_to_actual(xopt), dx, niwarm, nwarm, nmc, cost, cost_surrogate_kl)
+
+
+#%%
+plt.figure()
+plt.plot(x[:nwarm, 0], x[:nwarm, 1])
+plt.title('Warmup path')
+
+plt.figure()
+plt.plot([np.exp(-cost_surrogate_kl(x[k, :])[0]) for k in range(nwarm)])
+plt.title('Warmup likelihood')
+
+plt.figure()
+plt.plot(x[:, 0], x[:, 1])
+plt.plot(x[:nwarm, 0], x[:nwarm, 1])
+plt.title(f'MC, acceptance rates: \
+    {np.sum(acc1[nwarm+1:], 0)/(nmc+1),np.sum(acc2[nwarm+1:], 0)/(nmc+1)}')
+
+plt.figure()
+plt.hist2d(x[nwarm+1:, 0], x[nwarm+1:, 1])
+plt.plot(xref[0], xref[1], 'rx')
+plt.figure()
+plt.hist(x[nwarm+1:, 0])
+plt.plot(xref[0], 0, 'rx')
+plt.figure()
+plt.hist(x[nwarm+1:, 1])
+plt.plot(xref[1], 0, 'rx')
+
+print('Mean: ', xmean)
+print('Variance: ', x[nwarm+1:].var(ddof=1))  # Unbiased variance
+plt.figure()
+pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 0])
+pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 1])
+
+#%% TODO: Bayesian optimization with KL surrogate
+
+# ycost = cost_y(y)
+# ymin = np.array([np.min(ycost)])
+# kopt = np.argmin(ycost)
+# xopt = X[kopt, :]
+
+# def surrogate_kl(X):
+#     with catch_warnings():
+#         simplefilter("ignore")
+#         mus = np.empty((neig, X.shape[0]))
+#         vars = np.empty((neig, X.shape[0]))
+#         for k, model in enumerate(models):
+#             mu, var = model.predict(X, full_cov=False)
+#             mus[k, :] = mu.flat
+#             vars[k, :] = var.flat
+
+#         ymu, yvars = kl.lift(mus, vars)
+#         ycost = cost_y(ymu)
+#         dycost2 = residuals_y(ymu).T**2/(ycost*(nt*2.0*sig2meas)**2)
+#         ycostvar = np.sum(dycost2.T*yvars, 1)
+
+#     return ycost, ycostvar
+
+# def acquisition_kl(x):
+#     mu, std = surrogate_kl(x.reshape(-1, 2))
+#     std = std + 1e-31
+#     probs = (ymin[-1] - mu)*norm.cdf(ymin[-1], mu, std) + \
+#         std**2 * norm.pdf(ymin[-1], mu, std)
+#     return -probs
+
+# def opt_acquisition_kl():
+#     Xsamples = np.random.rand(1024, 2)
+#     scores = acquisition_kl(Xsamples)
+#     ix = np.argmin(scores)
+#     return Xsamples[ix, :]
+
+# # %%
+
+# for i in range(nsamp0):
+#     x = opt_acquisition_kl()
+#     ytrue = blackbox(box_to_actual(x))
+#     ycost_true = cost_y(ytrue)*(2.0*sig2meas)
+#     yest, _ = surrogate_kl(x.reshape(-1, 2))
+#     print(x, yest, ytrue)
+#     # add the data to the dataset
+#     X = np.vstack((X, x))
+#     ycost = np.append(y, ycost_true)
+#     ymin = np.append(ymin, np.min(ycost))
+#     # update the model
+#     model.set_XY(X, y.reshape(-1, 1))
+#     model.optimize('bfgs')
+
+
+# # %%
+
+# plt.figure()
+# plt.plot(yref)
+# plt.plot(blackbox(box_to_actual(xopt)), '--')
+# plt.legend(['reference', 'start', 'optimized'])
+
+# plt.figure()
+# for k in range(len(X)):
+#     xt = box_to_actual(X[k, :])
+#     ypred, yvar = surrogate_kl(actual_to_box(xt).reshape(-1,2))
+#     plt.semilogy(k, cost(xt), 'rx')
+#     plt.semilogy([k, k],
+#         [ypred,
+#          ypred + max(2*np.sqrt(yvar), 0.1*ypred)], 'k-')
+
+
+# plt.figure()
+# plt.semilogy(ymin)
+
+# # %%

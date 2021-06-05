@@ -8,3 +8,10 @@
 *_latexmk
 paper/Definitions
 paper/Albert2021_Maxent.tex
+*.npy
+*.hdf5
+*.pyc
+.vscode
+\#*\#
+*.old.lyx
+*.old.tex
