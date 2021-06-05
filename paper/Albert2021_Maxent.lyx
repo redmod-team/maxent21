@@ -386,8 +386,110 @@ literal "false"
 )
 \end_layout
 
+\begin_layout Itemize
+Multimodel https://www2.stat.duke.edu/~scs/Courses/Stat376/Papers/TransdimMCMC/Gree
+nRevJump.1995.pdf
+\end_layout
+
+\begin_layout Itemize
+https://arxiv.org/pdf/math/0503712.pdf
+\end_layout
+
+\begin_layout Itemize
+http://www1.maths.leeds.ac.uk/statistics/workshop/lasr2008/proceedings/czogiel.pdf
+\end_layout
+
+\begin_layout Itemize
+https://people.maths.bris.ac.uk/~mapjg/papers/RichardsonGreenRSSB.pdf
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+https://www.sciencedirect.com/science/article/pii/S0022460X19303633
+\end_layout
+
+\begin_layout Itemize
+https://hal-upec-upem.archives-ouvertes.fr/hal-01794807
+\end_layout
+
+\begin_layout Itemize
+https://arxiv.org/pdf/1605.09503.pdf
+\end_layout
+
+\begin_layout Itemize
+https://www.tandfonline.com/doi/abs/10.1080/00401706.2013.775897
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+http://www.people.fas.harvard.edu/~airoldi/pub/books/b02.AiroldiBleiEroshevaFienberg2
+014HandbookMMM/Ch4_MMM2014.pdf
+\end_layout
+
+\begin_layout Itemize
+We use Gibbs sampling
+\end_layout
+
+\begin_layout Itemize
+Hierarchical model?
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+http://people.duke.edu/~ccc14/sta-663-2018/notebooks/S10D_MCMC.html
+\end_layout
+
+\end_deeper
 \begin_layout Section
 Delayed acceptance MCMC
+\end_layout
+
+\begin_layout Section
+Hierarchical Bayesian data model
+\end_layout
+
+\begin_layout Itemize
+We allow members of the exponential family for obeservational noise and
+ specify only its scale.
+\end_layout
+
+\begin_layout Itemize
+Distribution:
+\begin_inset Formula 
+\begin{equation}
+p(\boldsymbol{y}|\boldsymbol{x},\theta)=\frac{1}{2\sqrt{2}\sigma\,\Gamma(1+\theta^{-1})}e^{-l(\boldsymbol{y};\boldsymbol{x},\theta)},
+\end{equation}
+
+\end_inset
+
+with loss function
+\begin_inset Formula 
+\begin{equation}
+l(\boldsymbol{y};\boldsymbol{x},\theta)\equiv\frac{1}{D}\sum_{k=1}^{D}\left|\frac{y_{k}-f_{k}(\boldsymbol{x})}{\sqrt{2}\sigma}\right|^{\theta}.
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Two ways to support variable 
+\begin_inset Formula $\theta$
+\end_inset
+
+: Constructing a surrogate with scalar output and 
+\begin_inset Formula $\theta$
+\end_inset
+
+ as an independent variable, or constructing a surrogate with functional
+ output for 
+\begin_inset Formula $f_{k}(\boldsymbol{x})$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Section
