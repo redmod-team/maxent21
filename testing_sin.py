@@ -220,8 +220,9 @@ def plot_mc_results(name, acor=10, figsize=[4.0, 4.0], figpath = 'paper/fig'):
     figs = []
 
     figs.append(plt.figure(figsize=[4.0, 2.0]))
-    pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+100, 0])
-    pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+100, 1], linestyle='dashed')
+    pd.plotting.autocorrelation_plot(x[nwarm+1:, 0])
+    pd.plotting.autocorrelation_plot(x[nwarm+1:, 1], linestyle='dashed')
+    plt.xlim(0, 1000)
     plt.tight_layout()
     plt.savefig(os.path.join(figpath, f'acor_{name}.pdf'))
 
