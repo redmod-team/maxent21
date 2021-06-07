@@ -1,6 +1,8 @@
 # %%
+import os
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import pandas as pd
 from scipy.optimize import leastsq
 from scipy.stats import norm
@@ -11,7 +13,7 @@ np.random.seed(42)
 
 nsamp0 = 32
 
-sig2meas = 0.02**2  # Measurement variance
+sig2meas = 0.05**2  # Measurement variance
 
 mean = np.array([1.0, 1.0])
 
@@ -60,7 +62,7 @@ t = np.linspace(0, 2.0*(1.0-1.0/nt), nt)
 xpath = []
 def blackbox(x):
     xpath.append(x)
-    ret = x[0]*(t - x[1])**3
+    ret = x[0]*np.sin((t - x[1])**3)
     #ret[ret<-10] = -10
     #ret[ret>10] = 10
     return ret
@@ -68,6 +70,7 @@ def blackbox(x):
 # Reference values for optimum
 xref = np.array([1.15, 1.4])
 yref = blackbox(xref)
+yref = yref + np.sqrt(sig2meas)*np.random.randn(len(yref))
 
 def residuals(x):
     return yref - blackbox(x)
@@ -194,15 +197,86 @@ plt.semilogy(ymin)
 
 # %% MCMC
 
-niwarm = 2
-nwarm = 500
-nmc = 10000
-
 nvar = 2
+niwarm = 4
+nwarm = 250
+nmc = 10000
 nstep = nwarm + nmc
 
 dx = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*box_to_actual(xopt)
 x, acc = mcmc(box_to_actual(xopt), dx, niwarm, nwarm, nmc, cost)
+
+plt.figure()
+plt.plot(x[:nwarm, 0], x[:nwarm, 1], ',')
+plt.title('Warmup')
+
+plt.figure()
+plt.plot([np.exp(-cost(x[k,:])) for k in range(nwarm)])
+plt.title('Warmup')
+
+bins = [np.linspace(0.0, 2.0, 21), np.linspace(0, 1.8, 21)]
+
+def plot_mc_results(name, acor=10, figsize=[4.0, 4.0], figpath = 'paper/fig'):
+    figs = []
+
+    figs.append(plt.figure(figsize=[4.0, 2.0]))
+    pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+100, 0])
+    pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+100, 1], linestyle='dashed')
+    plt.tight_layout()
+    plt.savefig(os.path.join(figpath, f'acor_{name}.pdf'))
+
+
+    figs.append(plt.figure())
+    sns.displot(
+        x = x[nwarm+1::acor, 0], y = x[nwarm+1::acor, 1], height=3.0,
+        bins=bins, aspect=4.0/3.0)
+    plt.plot(x[nwarm+1::acor, 0], x[nwarm+1::acor, 1], 'k,', alpha=1.0)
+    plt.xlabel('$x_1$')
+    plt.ylabel('$x_2$')
+    plt.xlim([0, 2])
+    plt.ylim([1, 1.8])
+    plt.tight_layout()
+    plt.savefig(os.path.join(figpath, f'hist2_{name}.pdf'))
+
+    figs.append(plt.figure())
+    sns.displot(x[nwarm+1::acor, 0], kde=True, height=figsize[0])
+    plt.xlabel('$x_1$')
+    plt.xlim([0, 2])
+    plt.tight_layout()
+    plt.savefig(os.path.join(figpath, f'hist_x1_{name}.pdf'))
+
+    figs.append(plt.figure())
+    sns.displot(x[nwarm+1::acor, 1], kde=True, height=figsize[0])
+    plt.xlabel('$x_2$')
+    plt.xlim([1, 1.8])
+    plt.tight_layout()
+    plt.savefig(os.path.join(figpath, f'hist_x2_{name}.pdf'))
+
+    return figs
+
+
+figs = plot_mc_results('mcmc')
+
+
+
+# %% MCMC hierachical
+from scipy.special import gamma
+
+def cost_hi(x):
+    prior = (x[-1]+1.0 - 2.0)**2 / (2.0*0.5**2)
+    lik = np.sum(
+        np.abs(residuals(x[:-1])/np.sqrt(2.0*sig2meas))**(x[-1]+1.0))/nt
+    lik = lik + np.log(gamma(1.0 + 1.0/(x[-1]+1.0)))
+    return lik + prior
+
+x0 = np.empty(nvar+1)
+dx = np.empty((nstep, nvar+1))
+
+x0[:-1] = box_to_actual(xopt)
+x0[-1] = 2.0 - 1.0  # L2 norm
+dx[:,:-1] = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*box_to_actual(xopt)
+dx[:,-1] = np.random.randn(nstep)*0.1
+x, acc = mcmc(x0, dx, niwarm, nwarm, nmc, cost_hi)
 
 plt.figure()
 plt.plot(x[:nwarm, 0], x[:nwarm, 1])
@@ -212,73 +286,44 @@ plt.figure()
 plt.plot([np.exp(-cost(x[k,:])) for k in range(nwarm)])
 plt.title('Warmup')
 
-plt.figure()
-plt.plot(x[:, 0], x[:, 1])
-plt.plot(x[:nwarm, 0], x[:nwarm, 1])
-plt.title(f'MC, acceptance rate: {np.sum(acc[nwarm+1:], 0)/(nmc+1)}')
+print(f'MC, acceptance rate: {np.sum(acc[nwarm+1:], 0)/(nmc+1)}')
 
-plt.figure()
-plt.hist2d(x[nwarm+1:, 0], x[nwarm+1:, 1])
-plt.plot(xref[0], xref[1], 'rx')
-plt.figure()
-plt.hist(x[nwarm+1:, 0])
-plt.plot(xref[0], 0, 'rx')
-plt.figure()
-plt.hist(x[nwarm+1:, 1])
-plt.plot(xref[1], 0, 'rx')
+figs = plot_mc_results('mcmc_hi')
+
+
+figs.append(plt.figure(figsize=(4.0,3.0)))
+sns.displot(x[nwarm+1::10, 2] + 1, height=2.0, aspect=2.0, kde=True)
+plt.xlabel(r'$\theta$')
+plt.xlim([1, 3.5])
+plt.tight_layout()
+plt.savefig('paper/fig/hist_theta_mcmc_hi.pdf')
 
 xmean = np.mean(x[nwarm+1:,:], 0)
-
 print('Mean: ', xmean)
 print('Variance: ', x[nwarm+1:].var(ddof=1))  # Unbiased variance
-plt.figure()
-pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 0])
-pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 1])
-
 # %% Delayed acceptance MCMC
 
-def cost_surrogate(x):
-    return surrogate(actual_to_box(x).reshape(-1,2))[0]
+# def cost_surrogate(x):
+#     return surrogate(actual_to_box(x).reshape(-1,2))[0]
 
-# Input values and step sizes
-dx = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*x[0, :]
+# # Input values and step sizes
+# x0 = box_to_actual(xopt)
+# dx = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*x0
 
-x, acc1, acc2 = mcmc(
-    box_to_actual(xopt), dx, niwarm, nwarm, nmc, cost, cost_surrogate)
+# x, acc1, acc2 = mcmc(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate)
 
-plt.figure()
-plt.plot(x[:nwarm, 0], x[:nwarm, 1])
-plt.title('Warmup path')
+# plt.figure()
+# plt.plot(x[:nwarm, 0], x[:nwarm, 1])
+# plt.title('Warmup path')
 
-plt.figure()
-plt.plot([np.exp(-cost_surrogate(x[k, :])[0]) for k in range(nwarm)])
-plt.title('Warmup likelihood')
+# plt.figure()
+# plt.plot([np.exp(-cost_surrogate(x[k, :])[0]) for k in range(nwarm)])
+# plt.title('Warmup likelihood')
 
-plt.figure()
-plt.plot(x[:, 0], x[:, 1])
-plt.plot(x[:nwarm, 0], x[:nwarm, 1])
-plt.title(f'MC, acceptance rates: \
-    {np.sum(acc1[nwarm+1:], 0)/(nmc+1),np.sum(acc2[nwarm+1:], 0)/(nmc+1)}')
-
-plt.figure()
-plt.hist2d(x[nwarm+1:, 0], x[nwarm+1:, 1])
-plt.plot(xref[0], xref[1], 'rx')
-plt.figure()
-plt.hist(x[nwarm+1:, 0])
-plt.plot(xref[0], 0, 'rx')
-plt.figure()
-plt.hist(x[nwarm+1:, 1])
-plt.plot(xref[1], 0, 'rx')
-
-print('Mean: ', xmean)
-print('Variance: ', x[nwarm+1:].var(ddof=1))  # Unbiased variance
-plt.figure()
-pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 0])
-pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 1])
+# # plot_mc_results()
 
 # %%
 from profit.sur.linear_reduction import KarhunenLoeve
-from sklearn.linear_model import LinearRegression
 
 X = r.copy()
 y = np.array([blackbox(box_to_actual(xk)) for xk in X])
@@ -286,7 +331,7 @@ y = np.array([blackbox(box_to_actual(xk)) for xk in X])
 # %%
 kl = KarhunenLoeve(y, tol=1e1)
 
-fig, ax = plt.subplots(figsize=(5.4, 3.2))
+fig, ax = plt.subplots(figsize=(4.0, 3.0))
 ax.loglog(1, kl.w[-1]/kl.w[-1], 'x')
 for k in range(kl.w.shape[0]):
     ax.loglog(k+1, kl.w[-k-1]/kl.w[-1], 'x')
@@ -296,7 +341,7 @@ fig.tight_layout()
 
 ztrain = kl.project(y)
 
-fig, ax = plt.subplots(figsize=(5.4, 3.2))
+fig, ax = plt.subplots(figsize=(4.0, 3.0))
 ax.plot(kl.ymean)
 ax.plot(-kl.features()[:,::-1])
 ax.set_xlabel(r'$\tau$')
@@ -306,7 +351,6 @@ fig.tight_layout()
 
 # %%
 
-surs = []
 z = kl.project(y)
 
 models = []
@@ -357,43 +401,80 @@ def cost_surrogate_kl(x):
 
 
 # Input values and step sizes
-dx = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*x[0, :]
+x0 = box_to_actual(xopt)
+dx = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*x0
 
+x, acc1, acc2 = mcmc(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate_kl)
 
-x, acc1, acc2 = mcmc(
-    box_to_actual(xopt), dx, niwarm, nwarm, nmc, cost, cost_surrogate_kl)
-
-
-#%%
 plt.figure()
-plt.plot(x[:nwarm, 0], x[:nwarm, 1])
+plt.plot(x[:nwarm, 0], x[:nwarm, 1], ',')
 plt.title('Warmup path')
 
 plt.figure()
 plt.plot([np.exp(-cost_surrogate_kl(x[k, :])[0]) for k in range(nwarm)])
 plt.title('Warmup likelihood')
 
-plt.figure()
-plt.plot(x[:, 0], x[:, 1])
-plt.plot(x[:nwarm, 0], x[:nwarm, 1])
-plt.title(f'MC, acceptance rates: \
-    {np.sum(acc1[nwarm+1:], 0)/(nmc+1),np.sum(acc2[nwarm+1:], 0)/(nmc+1)}')
+figs = plot_mc_results('mcmc_kl_da')
+
+# %% Delayed acceptance MCMC hierachical
+
+def residuals_y(y):
+    return yref - y
+
+
+def cost_y_hi(y, th):
+    prior = (th+1.0 - 2.0)**2 / (2.0*0.5**2)
+    lik = np.sum(
+        np.abs(residuals_y(y)/np.sqrt(2.0*sig2meas))**(th+1.0))/nt
+    lik = lik + np.log(gamma(1.0 + 1.0/(th+1.0)))
+    return lik + prior
+
+
+def surrogate_kl_hi(X, th):
+    with catch_warnings():
+        simplefilter("ignore")
+        mus = np.empty((neig, X.shape[0]))
+        for k, model in enumerate(models):
+            mu, _ = model.predict(X, full_cov=False)
+            mus[k, :] = mu.flat
+
+        ymu, yvars = kl.lift(mus, vars)
+        ycost = cost_y_hi(ymu, th)
+
+    return ycost, 0.0  # TODO: variance
+
+
+def cost_surrogate_kl_hi(x):
+    return surrogate_kl_hi(actual_to_box(x[:-1]).reshape(-1, 2), x[-1])[0]
+
+x0 = np.empty(nvar+1)
+dx = np.empty((nstep, nvar+1))
+
+x0[:-1] = box_to_actual(xopt)
+x0[-1] = 2.0 - 1.0  # L2 norm
+dx[:,:-1] = np.random.randn(nstep, nvar)*np.sqrt(sig2meas)*box_to_actual(xopt)
+dx[:,-1] = np.random.randn(nstep)*0.1
+
+
+x, acc1, acc2 = mcmc(x0, dx, niwarm, nwarm, nmc, cost_hi, cost_surrogate_kl_hi)
+
 
 plt.figure()
-plt.hist2d(x[nwarm+1:, 0], x[nwarm+1:, 1])
-plt.plot(xref[0], xref[1], 'rx')
-plt.figure()
-plt.hist(x[nwarm+1:, 0])
-plt.plot(xref[0], 0, 'rx')
-plt.figure()
-plt.hist(x[nwarm+1:, 1])
-plt.plot(xref[1], 0, 'rx')
+plt.plot(x[:nwarm, 0], x[:nwarm, 1], ',')
+plt.title('Warmup path')
 
-print('Mean: ', xmean)
-print('Variance: ', x[nwarm+1:].var(ddof=1))  # Unbiased variance
 plt.figure()
-pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 0])
-pd.plotting.autocorrelation_plot(x[nwarm+1:nwarm+1000, 1])
+plt.plot([np.exp(-cost_surrogate_kl(x[k, :-1])[0]) for k in range(nwarm)])
+plt.title('Warmup likelihood')
+
+figs = plot_mc_results('mcmc_kl_da_hi')
+
+figs.append(plt.figure(figsize=(4.0,3.0)))
+sns.displot(x[nwarm+1::10, 2] + 1, height=2.0, aspect=2.0, kde=True)
+plt.xlabel(r'$\theta$')
+plt.xlim([1, 3.5])
+plt.tight_layout()
+plt.savefig('paper/fig/hist_theta_mcmc_kl_da_hi.pdf')
 
 #%% TODO: Bayesian optimization with KL surrogate
 

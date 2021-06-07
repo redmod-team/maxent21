@@ -8,15 +8,15 @@ from time import time
 from multiprocessing import Process
 from algae_common import *
 
-nproc = 16
+proc = [0, 4]
 
-niwarm = 2
-nwarm = 250
-nmc = 1000
+niwarm = 5
+nwarm = 500
+nmc = 10000
 
 def main():
     workers = []
-    for kproc in range(nproc):
+    for kproc in range(proc[0], proc[1]):
         run_dir = os.path.join(base_dir, f'{kproc}')
         init_dir(run_dir)
 
@@ -32,8 +32,6 @@ def start_run(run_dir, kproc):
     np.random.seed(kproc)
     tic = time()
     # MCMC
-    sig_ch = 5.0  # Basic uncertainty
-    sig2meas = (sig_ch*fac_norm)**2  # Measurement variance
 
     nstep = nwarm + nmc
 
@@ -48,14 +46,16 @@ def start_run(run_dir, kproc):
     for ki in range(niwarm):
         acc = np.zeros((nstep + 1, nvar), dtype=bool)  # Acceptance rates
         r = np.log(np.random.rand(nstep, nvar))  # Pre-computed random numbers
-        lpold = -cost(x[0, :], run_dir)/(2.0*sig2meas) # log-likelihood
+        lpold = -cost(x[0, :], run_dir)/(2.0*sig2meas) + np.log(prior(x[0, :])).sum()
         for k in range(nwarm):
+            if (k%10 == 0):
+                print(k)
             x[k+1, :] = x[k, :]
             for i in range(nvar):
                 xguess[:] = x[k+1, :]
                 xguess[i] += dx[k, i]
                 xguess[i] = np.abs(xguess[i])  # Mirror negative values
-                lpnew = -cost(xguess, run_dir)/(2.0*sig2meas)
+                lpnew = -cost(xguess, run_dir)/(2.0*sig2meas) + np.log(prior(xguess)).sum()
                 A = lpnew - lpold
                 if A >= r[k, i]:
                     x[k+1, :] = xguess
@@ -67,22 +67,23 @@ def start_run(run_dir, kproc):
         dx = dx*np.exp(acceptance_rate/target_rate-1.0)
         if ki < niwarm:
             x[0, :] = x[nwarm, :]
+        print('Warmup acceptance rate: ', acceptance_rate)
 
     plt.figure()
     plt.plot(x[:nwarm, 0], x[:nwarm, 1])
     plt.title(f'warmup, acceptance rate: {np.sum(acc[:nwarm], 0)/(nwarm+1)}')
     plt.savefig(os.path.join(run_dir, '1.png'))
 
-    print('Warmup acceptance rate: ', acceptance_rate)
 
-    lpold = -cost(x[nwarm, :], run_dir)/(2.0*sig2meas)  # Log-likelihood
     for k in range(nwarm, nstep):
+        if (k%10 == 0):
+            print(k)
         x[k+1, :] = x[k, :]
         for i in range(nvar):
             xguess[:] = x[k+1, :]
             xguess[i] += dx[k,i]
             xguess[i] = np.abs(xguess[i])  # Mirror negative values
-            lpnew = -cost(xguess, run_dir)/(2.0*sig2meas)
+            lpnew = -cost(xguess, run_dir)/(2.0*sig2meas) + np.log(prior(xguess)).sum()
             A = lpnew - lpold
             if A >= r[k, i]:
                 x[k+1, :] = xguess

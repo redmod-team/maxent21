@@ -8,13 +8,20 @@ nyears = len(years)
 
 T_water = []
 
+# for year in years:
+#     if year == 1997:
+#         place = 'SCHNACKENBURG'
+#     else:
+#         place = 'GEESTHACHT'
+#     file_water_temp = os.path.join(
+#         template_dir, 'INPUT_DATA', place, f'WaterTemp_{year}.txt')
+#     T_water.append(read_data(file_water_temp, f'{year}-03-12', f'{year}-10-29'))
+
+
 for year in years:
-    if year == 1997:
-        place = 'SCHNACKENBURG'
-    else:
-        place = 'GEESTHACHT'
+    place = 'NEU_DARCHAU'
     file_water_temp = os.path.join(
-        template_dir, 'INPUT_DATA', place, f'WaterTemp_{year}.txt')
+        template_dir, 'INPUT_DATA', place, f'Discharge_{year}.txt')
     T_water.append(read_data(file_water_temp, f'{year}-03-12', f'{year}-10-29'))
 
 #%%

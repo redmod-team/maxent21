@@ -20,6 +20,7 @@ def mcmc(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate=None):
             for i in range(nvar):
                 xguess[:] = x[k+1, :]
                 xguess[i] += dx[k,i]
+                xguess[i] = np.abs(xguess[i])
                 lpnew = -cost(xguess)
                 A = lpnew - lpold
                 if A >= r[k,i]:
@@ -42,6 +43,7 @@ def mcmc(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate=None):
         for i in range(nvar):
             xguess[:] = x[k+1, :]
             xguess[i] += dx[k,i]
+            xguess[i] = np.abs(xguess[i])
             lpnew = -cost(xguess)
             A = lpnew - lpold
             if A >= r[k, i]:
@@ -60,20 +62,20 @@ def mcmc_da(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate):
     x[0, :] = x0
 
     # Warmup
-
+    lpold_sur = -cost_surrogate(x[0, :])
+    lpold = -cost(x[0, :])
     for ki in range(niwarm):
         acc1 = np.zeros((nstep + 1, nvar), dtype=bool)  # Acceptance rates sur
         r1 = np.log(np.random.rand(nstep, nvar))  # Pre-computed random numbers for sur
         acc2 = np.zeros((nstep + 1, nvar), dtype=bool)  # Acceptance rates true
         r2 = np.log(np.random.rand(nstep, nvar))  # Pre-computed random numbers for true
 
-        lpold_sur = -cost_surrogate(x[0, :])
-        lpold = -cost(x[0, :])
         for k in range(nwarm):
             x[k+1, :] = x[k, :]
             for i in range(nvar):
                 xguess[:] = x[k+1, :]
                 xguess[i] += dx[k, i]
+                xguess[i] = np.abs(xguess[i])
                 lpnew_sur = -cost_surrogate(xguess)
                 A_sur = lpnew_sur - lpold_sur
                 if A_sur >= r1[k, i]:
@@ -104,6 +106,7 @@ def mcmc_da(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate):
         for i in range(nvar):
             xguess[:] = x[k+1, :]
             xguess[i] += dx[k, i]
+            xguess[i] = np.abs(xguess[i])
             lpnew_sur = -cost_surrogate(xguess)
             A_sur = lpnew_sur - lpold_sur
             if A_sur >= r1[k, i]:

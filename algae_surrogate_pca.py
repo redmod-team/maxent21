@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import GPy
+from GPy.models import GPRegression
 from algae_common import *
 
 file_meas = os.path.join(
@@ -49,7 +50,7 @@ ax.set_xlabel('Index')
 ax.set_ylabel('Eigenvalues')
 fig.tight_layout()
 
-ztrain = kl.project(y)
+
 
 fig, ax = plt.subplots(figsize=(5.4, 3.2))
 ax.plot(kl.ymean)
@@ -59,20 +60,48 @@ ax.set_ylabel(r'$g(\tau)$')
 ax.legend(['mean'] + [f'$\\varphi_{k+1}$' for k in range(3)], loc='upper right')
 fig.tight_layout()
 
+neig0 = len(kl.w)
+kl.w = kl.w[neig0-neig:]
+kl.Q = kl.Q[:, neig0-neig:]
+ztrain = kl.project(y)
+
+ykl = kl.lift(ztrain)
+ktest = 9
+plt.figure()
+plt.plot(y[ktest, :])
+plt.plot(ykl[ktest, :], '--')
+#plt.plot(ymu[ktest, :])
 
 #%%
-k = GPy.kern.Matern52(nvar, ARD=True, lengthscale=1.0, variance=1)
-mf = GPy.mappings.Linear(nvar, 1)
-#mf = GPy.mappings.Constant(nvar, 1)
 
-
-model = GPy.models.GPRegression(X, cost_y(y).reshape(-1,1), k,
+models = []
+for k, zk in enumerate(ztrain):
+    kernel = GPy.kern.Matern52(2, ARD=True, lengthscale=10.0/nsamp0, variance=1)
+    mf = GPy.mappings.Linear(2, 1)
+    model = GPRegression(X, zk.reshape(-1, 1), kernel,
         noise_var=1e-4, mean_function=mf)
-model.optimize('bfgs')
+    model.optimize('bfgs')
+    print(model.kern.lengthscale)
+    models.append(model)
+    model.save(f'model_{k}.hdf5')
 
-print(model)
-print(model.kern.lengthscale)
+# %%
+def surrogate(x):
+    mus = np.empty((neig, 1))
+    for k, model in enumerate(models):
+        mu, _ = model.predict(x.reshape(-1, 2), full_cov=False)
+        mus[k, :] = mu.flat
 
-model.save('sur_pca0.hdf5')
+    return kl.lift(mus)
+
+def cost_surrogate(r):
+    return cost_y(surrogate(actual_to_box(r)))
+
+# %%
+ktest = 9
+plt.figure()
+plt.plot(y[ktest, :])
+plt.plot(ykl[ktest, :], '--')
+plt.plot(surrogate(X[ktest,:]).T)
 
 # %%

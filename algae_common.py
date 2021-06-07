@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import profit
+import GPy
 from subprocess import run
 
 template_dir = os.path.expanduser('~/src/DiatomGrowth/profit/template')
@@ -25,6 +26,12 @@ nsamp0 = 128
 fac_norm = 1.0/200.0  # To get values of O(1)
 fac_meas = 5.2  # Conversion from Chla_Fluor to Chlorphyl concentration
 
+sig_ch = 5.0  # Basic uncertainty
+sig2meas = (sig_ch*fac_norm)**2  # Measurement variance
+
+x0test = np.array([447.0, 1.9])
+
+neig = 10
 
 def init_dir(run_dir):
     shutil.rmtree(run_dir, ignore_errors=True)
@@ -94,15 +101,26 @@ data_meas = read_data(
 
 yref = fac_meas*fac_norm*data_meas['Chla_Fluor'].values
 
+k = GPy.kern.Matern52(nvar, ARD=False, lengthscale=0.2, variance=1)
+#mf = GPy.mappings.Linear(nvar, 1)
+mf = GPy.mappings.Constant(nvar, 1)
 
 def residuals(x, run_dir):
     return yref - blackbox(x, run_dir)
 
 def cost(x, run_dir):
-    return np.sum(residuals(x, run_dir)**2)/ntout
+    return np.sum(residuals(x, run_dir)**2)*1.0/ntout
 
 def residuals_y(y):
     return yref - y
 
 def cost_y(y):
-    return np.sum(residuals_y(y)**2, 1)/ntout
+    return np.sum(residuals_y(y)**2, 1)*1.0/ntout
+
+
+thstar = np.array([500.0, 3.5, 0.4, 0.05, 2.0, 2.0])
+Pstar = 0.9
+b = thstar/np.tan(np.pi/2*Pstar)
+
+def prior(x):
+    return 1.0/np.pi*b[:nvar]/(b[:nvar]**2 + x**2)

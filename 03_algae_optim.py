@@ -23,8 +23,6 @@ plt.figure()
 plt.plot(yref)
 
 # %%
-k = GPy.kern.Matern52(nvar, ARD=True, lengthscale=0.2, variance=1)
-mf = GPy.mappings.Linear(nvar, 1)
 
 X = np.load('Xtrain0.npy')
 y = cost_y(np.load('ytrain0.npy'))
@@ -108,5 +106,9 @@ plt.semilogy(ymin)
 ropt = mean
 ropt[:nvar] = box_to_actual(xopt)
 np.save('ropt', ropt)
+
+np.save('Xtrain1.npy', X.reshape(2*nsamp0, nvar))
+np.save('ytrain1.npy', y.reshape(2*nsamp0, -1))
+model.save('sur1.hdf5')
 
 # %%

@@ -71,20 +71,24 @@ $^{2}$ \quad Helmholtz-Zentrum Hereon, 21502 Geesthacht, Germany}
 inference of model parameters based on observation of measured data.
 Going beyond usual surrogate-enhanced Monte-Carlo or optimization
 methods that focus on a scalar loss, we put emphasis on function-valued
-input and output of formally infinite dimension. For this purpose,
+output of formally infinite dimension. For this purpose,
 the surrogate models are built on a combination of linear dimensionality
-reduction and Gaussian process regression for the map between reduced
+reduction in an adaptive basis of principal components and Gaussian process 
+regression for the map between reduced
 feature spaces. Since the decoded surrogate provides the full model
 output rather than only the loss, it is re-usable for multiple calibration
 measurements as well as different loss metrics and consequently allows
-for flexible marginalization over such quantities. We evaluate the
-method's performance based on a case study of a riverine diatom
-model. As input data, this model uses six tunable scalar parameters as well
+for flexible marginalization over such quantities and application to Bayesian 
+hierarchical models. We evaluate the
+method's performance based on a case study of a toy model and a 
+simplfied version of a riverine diatom
+model. As input data, the full model uses six tunable scalar parameters as well
 as continuous time-series forcing data of weather and river discharge over a specific
 year. The output consists of continuous time-series
 data that are calibrated against corresponding measurements from the Geesthacht Weir
 station at the Elbe river.
-Results are compared to an existing model calibration using direct
+For this study, only two scalar inputs are considered together with a 
+function-valued output and compared to an existing model calibration using direct
 simulation runs without a surrogate.}
 
 % Keywords
@@ -354,8 +358,161 @@ Gaussian process regression; dimensionality reduction}
 Introduction
 \end_layout
 
-\begin_layout Itemize
-TODO GP regression
+\begin_layout Standard
+Delayed acceptance
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "christenMarkovChainMonte2005,wiqvistAcceleratingDelayedacceptanceMarkov2019"
+literal "false"
+
+\end_inset
+
+ can accelerate Markov chain Monte Carlo (MCMC) sampling up to a factor
+ of one over the acceptance rate.
+ In order to do so, it requires a surrogate of the posterior that contains
+ the cost function inside the likelihood in case of model calibration.
+ The simplest way to implement delayed acceptence relies on a surrogate
+ with scalar output built for this cost function or for the likelihood.
+ Here we take an intermediate step and construct a surrogate for the functional
+ output of a blackbox model to be calibrated against reference data.
+ Typical examples are numerical simulations that output time-series or spatial
+ data and depend on tunable input parameterers.
+ 
+\end_layout
+
+\begin_layout Standard
+There exist numerous related works treating blackbox models with functional
+ outputs with surrogates.
+ Campbell
+\begin_inset space ~
+\end_inset
+
+et
+\begin_inset space ~
+\end_inset
+
+al.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "campbell2006_SensitivityAnalysisWhen"
+literal "false"
+
+\end_inset
+
+ use an adaptive basis of principal component analysis (PCA) to perform
+ global sensitivity analysis.
+ Pratola
+\begin_inset space ~
+\end_inset
+
+et
+\begin_inset space ~
+\end_inset
+
+al.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "pratola2013_FastSequentialComputer"
+literal "false"
+
+\end_inset
+
+ and Ranjan
+\begin_inset space ~
+\end_inset
+
+et
+\begin_inset space ~
+\end_inset
+
+al.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "ranjan2016_InverseProblemTimeSeries"
+literal "false"
+
+\end_inset
+
+ use GP regression for sequential model calibration in a Bayesian framework.
+ Lebel
+\begin_inset space ~
+\end_inset
+
+et
+\begin_inset space ~
+\end_inset
+
+al.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "lebel2019_StatisticalInverseIdentification"
+literal "false"
+
+\end_inset
+
+ model the likelihood function in an MCMC model calibration via a Gaussian
+ process.
+ Perrin
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "perrin2020_AdaptiveCalibrationComputera"
+literal "false"
+
+\end_inset
+
+ compares the use of a multi-output GP surrogate with a Kronecker structure
+ to an adaptive basis approach.
+ 
+\end_layout
+
+\begin_layout Standard
+The present contribution relies on the adaptive basis approach in principal
+ components (Karhunen-Loéve expansion or functional PCA) to reduce the dimension
+ of the functional output, while modeling the map from inputs to weights
+ in this basis via GP regression.
+ We demonstrate the application of this approach on two examples using usual
+ and hierarchical Bayesian model calibration.
+ In the latter case, a surrogate beyond the 
+\begin_inset Formula $L_{2}$
+\end_inset
+
+ cost function is required if the likelihood depends on additional auxiliary
+ parameters.
+ As an example we allow variations of the (fractional) order of the norm,
+ thereby marginalizing over different noise models, including Gaussian and
+ Laplacian noise.
+\end_layout
+
+\begin_layout Section
+Gaussian process regression and Bayesian global optimization
+\end_layout
+
+\begin_layout Standard
+Gaussian process regression
 \begin_inset space ~
 \end_inset
 
@@ -367,15 +524,79 @@ literal "false"
 
 \end_inset
 
+ is a commonly used tool to construct flexible non-parameteric surrogates.
+ Based on observed outputs 
+\begin_inset Formula $f(\boldsymbol{x}_{k})$
+\end_inset
 
+ at training points 
+\begin_inset Formula $\boldsymbol{x}_{k}$
+\end_inset
+
+ and a covariance function 
+\begin_inset Formula $k(\boldsymbol{x},\boldsymbol{x}^{\prime})$
+\end_inset
+
+, the GP regressor predicts a Gaussian posterior distribution at any point
+ 
+\begin_inset Formula $\boldsymbol{x}^{\ast}$
+\end_inset
+
+.
+ For a single prediction 
+\begin_inset Formula $f(\boldsymbol{x}^{\ast})$
+\end_inset
+
+, expected value and variance of this distribution are given by
+\begin_inset Formula 
+\begin{align}
+\bar{f}(\boldsymbol{x}^{\ast}) & =m(\boldsymbol{x}^{\ast})+K^{\ast}(K+\sigma_{n}I)^{-1}\boldsymbol{y},\\
+\mathrm{var}[\bar{f}(\boldsymbol{x}^{\ast})] & =K^{\ast\ast}-K^{\ast}(K+\sigma_{n}I)^{-1}K^{\ast T}\boldsymbol{y},
+\end{align}
+
+\end_inset
+
+where 
+\begin_inset Formula $m(\boldsymbol{x}^{\ast})$
+\end_inset
+
+ is the mean model, the covariance matrix 
+\begin_inset Formula $K$
+\end_inset
+
+ contains entries 
+\begin_inset Formula $K_{ij}=k(\boldsymbol{x}_{i},\boldsymbol{x}_{j})$
+\end_inset
+
+ based on the training set, 
+\begin_inset Formula $K_{i}^{\ast}(\boldsymbol{x}^{\ast},\boldsymbol{x}_{i})$
+\end_inset
+
+ are entries of a row vector, and 
+\begin_inset Formula $K^{\ast\ast}=k(\boldsymbol{x}^{\ast},\boldsymbol{x}^{\ast})$
+\end_inset
+
+ is a scalar.
+ The unit matrix 
+\begin_inset Formula $I$
+\end_inset
+
+ is added with the noise covariance 
+\begin_inset Formula $\sigma_{n}$
+\end_inset
+
+ that regularizes the problem and is usually estimated in an optimization
+ loop together with other kernel hyperparameters.
+ 
 \end_layout
 
-\begin_layout Itemize
-Bayesian global optimization
+\begin_layout Standard
+Such a surrogate with uncertainty information is used for Bayesian global
+ optimization
 \begin_inset space ~
 \end_inset
 
-(see, e.g., 
+ 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "shahriariTakingHumanOut2016a,osborne2009_GaussianProcessesGlobal,preuss2018_GlobalOptimizationEmploying"
@@ -383,121 +604,8 @@ literal "false"
 
 \end_inset
 
-)
-\end_layout
-
-\begin_layout Itemize
-Multimodel https://www2.stat.duke.edu/~scs/Courses/Stat376/Papers/TransdimMCMC/Gree
-nRevJump.1995.pdf
-\end_layout
-
-\begin_layout Itemize
-https://arxiv.org/pdf/math/0503712.pdf
-\end_layout
-
-\begin_layout Itemize
-http://www1.maths.leeds.ac.uk/statistics/workshop/lasr2008/proceedings/czogiel.pdf
-\end_layout
-
-\begin_layout Itemize
-https://people.maths.bris.ac.uk/~mapjg/papers/RichardsonGreenRSSB.pdf
-\end_layout
-
-\begin_layout Itemize
-
-\series bold
-https://www.sciencedirect.com/science/article/pii/S0022460X19303633
-\end_layout
-
-\begin_layout Itemize
-https://hal-upec-upem.archives-ouvertes.fr/hal-01794807
-\end_layout
-
-\begin_layout Itemize
-https://arxiv.org/pdf/1605.09503.pdf
-\end_layout
-
-\begin_layout Itemize
-https://www.tandfonline.com/doi/abs/10.1080/00401706.2013.775897
-\end_layout
-
-\begin_layout Itemize
-
-\series bold
-http://www.people.fas.harvard.edu/~airoldi/pub/books/b02.AiroldiBleiEroshevaFienberg2
-014HandbookMMM/Ch4_MMM2014.pdf
-\end_layout
-
-\begin_layout Itemize
-We use Gibbs sampling
-\end_layout
-
-\begin_layout Itemize
-Hierarchical model?
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-http://people.duke.edu/~ccc14/sta-663-2018/notebooks/S10D_MCMC.html
-\end_layout
-
-\end_deeper
-\begin_layout Section
-Delayed acceptance MCMC
-\end_layout
-
-\begin_layout Section
-Hierarchical Bayesian data model
-\end_layout
-
-\begin_layout Itemize
-We allow members of the exponential family for obeservational noise and
- specify only its scale.
-\end_layout
-
-\begin_layout Itemize
-Distribution:
-\begin_inset Formula 
-\begin{equation}
-p(\boldsymbol{y}|\boldsymbol{x},\theta)=\frac{1}{2\sqrt{2}\sigma\,\Gamma(1+\theta^{-1})}e^{-l(\boldsymbol{y};\boldsymbol{x},\theta)},
-\end{equation}
-
-\end_inset
-
-with loss function
-\begin_inset Formula 
-\begin{equation}
-l(\boldsymbol{y};\boldsymbol{x},\theta)\equiv\frac{1}{D}\sum_{k=1}^{D}\left|\frac{y_{k}-f_{k}(\boldsymbol{x})}{\sqrt{2}\sigma}\right|^{\theta}.
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-Two ways to support variable 
-\begin_inset Formula $\theta$
-\end_inset
-
-: Constructing a surrogate with scalar output and 
-\begin_inset Formula $\theta$
-\end_inset
-
- as an independent variable, or constructing a surrogate with functional
- output for 
-\begin_inset Formula $f_{k}(\boldsymbol{x})$
-\end_inset
-
 .
-\end_layout
-
-\begin_layout Section
-Gaussian process regression and Bayesian global optimization
-\end_layout
-
-\begin_layout Standard
-As an acquisition function we use the expected improvement (see, e.g.,
+ As an acquisition function we use the expected improvement (see, e.g.,
 \begin_inset space ~
 \end_inset
 
@@ -510,7 +618,7 @@ literal "false"
 \end_inset
 
 ) at a newly observed location 
-\begin_inset Formula $x^{\star}$
+\begin_inset Formula $\boldsymbol{x}^{\ast}$
 \end_inset
 
  given existing training data 
@@ -520,38 +628,380 @@ literal "false"
 ,
 \begin_inset Formula 
 \begin{align*}
-a_{\mathrm{EI}}(x^{\star}) & =E[\mathrm{min}(0,\bar{f}(x^{\star})-f^{\prime})|x^{\star},\mathcal{D}]\\
- & =(\bar{f}(x^{\star})-f^{\prime})\Phi(f^{\prime};\bar{f}(x^{\star}),\mathrm{var}(f(x^{\star})))-\mathrm{var}(f(x^{\star}))\mathcal{N}(f^{\prime};\bar{f}(x^{\star}),\mathrm{var}(f(x^{\star})))
+a_{\mathrm{EI}}(\boldsymbol{x}^{\star}) & =E[\mathrm{min}(0,\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})|\boldsymbol{x}^{\ast},\mathcal{D}]\\
+ & =(\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})\Phi(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}(f(\boldsymbol{x}^{\ast})))-\mathrm{var}(f(\boldsymbol{x}^{\ast}))\mathcal{N}(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}(f(\boldsymbol{x}^{\ast})))
 \end{align*}
 
 \end_inset
 
 where 
-\begin_inset Formula $f^{\prime}$
+\begin_inset Formula $\hat{f}$
 \end_inset
 
  is the optimum value for 
-\begin_inset Formula $f(x)$
+\begin_inset Formula $f(\boldsymbol{x})$
 \end_inset
 
  observed so far.
+ Due to the non-linear transformation from the functional blackbox output
+ to the value of the cost function, it is more convenient to realize Bayesian
+ optimization with a direct GP surrogate of the cost function that is constructe
+d in addition to the surrogate for the functional output for the KL expansion
+ coefficients described below.
 \end_layout
 
 \begin_layout Section
-Surrogates for maps between function spaces
+Delayed acceptance MCMC
 \end_layout
 
 \begin_layout Standard
-Want a surrogate for
+Delayed acceptance MCMC builds on a fast surrogate for the posterior 
+\begin_inset Formula $\tilde{p}(\boldsymbol{x}|\boldsymbol{y})$
+\end_inset
+
+ to reject unlikely proposals early
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "christenMarkovChainMonte2005,wiqvistAcceleratingDelayedacceptanceMarkov2019"
+literal "false"
+
+\end_inset
+
+.
+ Following the usual Metropolis-Hastings algorithm, the probability to accept
+ a new proposal 
+\begin_inset Formula $\boldsymbol{x}^{\ast}$
+\end_inset
+
+ in this first stage in the 
+\begin_inset Formula $n$
+\end_inset
+
+-the step of the Markov chain is as usual,
 \begin_inset Formula 
 \begin{equation}
-\Phi:\mathbb{U}\rightarrow\mathbb{V}.
+\tilde{P}_{\mathrm{acc}}^{n}=\frac{\tilde{p}(\boldsymbol{x}^{\ast}|\boldsymbol{y})}{\tilde{p}(\boldsymbol{x}_{n-1}|\boldsymbol{y})}\frac{g(\boldsymbol{x}_{n-1}|\boldsymbol{x}^{\ast})}{g(\boldsymbol{x}^{\ast}|\boldsymbol{x}_{n-1})},
 \end{equation}
 
 \end_inset
 
-Inner product in Hilbert spaces and its approximation for a finite set of
- support points is given by
+where 
+\begin_inset Formula $g$
+\end_inset
+
+ is a transition probability that has been suitably tuned during warmup.
+ The true posterior 
+\begin_inset Formula $p(\boldsymbol{x}|\boldsymbol{y})$
+\end_inset
+
+ is only evaluated if the proposal 
+\begin_inset Quotes eld
+\end_inset
+
+survives
+\begin_inset Quotes erd
+\end_inset
+
+ this first stage and enters the final acceptance probability
+\begin_inset Formula 
+\begin{equation}
+P_{\mathrm{acc}}^{n}=\frac{p(\boldsymbol{x}^{\ast}|\boldsymbol{y})}{p(\boldsymbol{x}_{n-1}|\boldsymbol{y})}\frac{\tilde{p}(\boldsymbol{x}_{n-1}|\boldsymbol{y})}{\tilde{p}(\boldsymbol{x}^{\ast}|\boldsymbol{y})}.
+\end{equation}
+
+\end_inset
+
+Actual computation is, as usually, performed in the logarithmic space with
+ cost function
+\begin_inset Formula 
+\begin{equation}
+\ell(\boldsymbol{x}|\boldsymbol{y})\equiv-\mathrm{log}p(\boldsymbol{x}|\boldsymbol{y}).
+\end{equation}
+
+\end_inset
+
+If this function is fixed, it is most convenient to just directly build
+ a surrogate 
+\begin_inset Formula $\tilde{\ell}(\boldsymbol{y}|\boldsymbol{x})$
+\end_inset
+
+ for the likelihood 
+\begin_inset Formula $\ell(\boldsymbol{y}|\boldsymbol{x})$
+\end_inset
+
+ and add the corresponding prior to model the posterior.
+\end_layout
+
+\begin_layout Section
+Bayesian hierarchical models and fractional norms
+\end_layout
+
+\begin_layout Standard
+One application of modeling the full functional output instead of only the
+ cost function is the existence of additional distribution parameters 
+\begin_inset Formula $\btheta$
+\end_inset
+
+ in the likelihood besides the original model inputs 
+\begin_inset Formula $\boldsymbol{x}$
+\end_inset
+
+.
+ Such dependencies appear within Bayesian hierarchical models
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "allenby2005_HierarchicalBayesModels"
+literal "false"
+
+\end_inset
+
+, where 
+\begin_inset Formula $\btheta$
+\end_inset
+
+ are again subject to a certain (prior) distribution with possibly further
+ levels of hyperparameters.
+ There are essentially two ways to construct a surrogate with support for
+ additional parameters 
+\begin_inset Formula $\btheta$
+\end_inset
+
+: Building a surrogate for the cost function that adds 
+\begin_inset Formula $\btheta$
+\end_inset
+
+ as independent variables, or constructing a surrogate with functional output
+ for 
+\begin_inset Formula $f_{k}(\boldsymbol{x})$
+\end_inset
+
+ and keep the dependencies on 
+\begin_inset Formula $\btheta$
+\end_inset
+
+ exact.
+ Here we focus on the latter, and apply this surrogate within delayed acceptance
+ MCMC with both, 
+\begin_inset Formula $\boldsymbol{x}$
+\end_inset
+
+ and 
+\begin_inset Formula $\btheta$
+\end_inset
+
+ as tunable parameters.
+\end_layout
+
+\begin_layout Standard
+As an example we use a more general noise model than the usual Gaussian
+ likelihood that builds on arbitrary 
+\begin_inset Formula $\ell^{\theta}$
+\end_inset
+
+ norms
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "aggarwal2001_SurprisingBehaviorDistance,dose2006_BayesianEstimateNewtonian,flexer2015_ChoosingLpNorms"
+literal "false"
+
+\end_inset
+
+ with real-valued 
+\begin_inset Formula $\theta$
+\end_inset
+
+ not fixed while traversing the Markov chain.
+ We allow members of the exponential family for observational noise and
+ specify only its scale, but keep 
+\begin_inset Formula $\theta$
+\end_inset
+
+ as a free parameter.
+ Namely, we model the likelihood for output 
+\begin_inset Formula $\boldsymbol{y}$
+\end_inset
+
+ as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+p(\boldsymbol{y}|\boldsymbol{x},\theta)=\frac{1}{2\sqrt{2}\sigma\,\Gamma(1+\theta^{-1})}e^{-\ell(\boldsymbol{y};\boldsymbol{x},\theta)},\label{eq:like}
+\end{equation}
+
+\end_inset
+
+with the normalized 
+\begin_inset Formula $\ell^{\theta}$
+\end_inset
+
+ norm to the power of 
+\begin_inset Formula $\theta$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{equation}
+\ell(\boldsymbol{y};\boldsymbol{x},\theta)\equiv\frac{1}{D}\sum_{i=1}^{D}\left|\frac{y_{i}-f_{i}(\boldsymbol{x})}{\sqrt{2}\sigma}\right|^{\theta}\label{eq:logli}
+\end{equation}
+
+\end_inset
+
+as the loss function between observed data 
+\begin_inset Formula $y_{i}$
+\end_inset
+
+ and domain model 
+\begin_inset Formula $f_{i}(\boldsymbol{x})$
+\end_inset
+
+.
+ Choosing the usual 
+\begin_inset Formula $L_{2}$
+\end_inset
+
+ norm leads to a Gaussian likelihood for the noise model, whereas using
+ the 
+\begin_inset Formula $L_{1}$
+\end_inset
+
+ norm means Laplacian noise.
+ To maintain the relative scale when varying 
+\begin_inset Formula $\theta$
+\end_inset
+
+, it is important to add the term 
+\begin_inset Formula $\log\Gamma(1+\theta^{-1})$
+\end_inset
+
+ from 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:like"
+
+\end_inset
+
+ to the negative log-likelihood.
+ In the following use cases we are going to compare the cases of fixed and
+ variable 
+\begin_inset Formula $\theta$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Linear dimension reduction via principal components
+\end_layout
+
+\begin_layout Standard
+Formally, the blackbox output for given input 
+\begin_inset Formula $\boldsymbol{x}$
+\end_inset
+
+ can be a function 
+\begin_inset Formula $f(t)\in\mathbb{H}$
+\end_inset
+
+ in an infinite-dimensional Hilbert space (though sampled at a finite number
+ of points in practice).
+ Linear dimension reduction in such a space means finding the optimum set
+ of basis functions 
+\begin_inset Formula $\varphi_{k}(t)$
+\end_inset
+
+ that spans the output space 
+\begin_inset Formula $f(t;\boldsymbol{x})$
+\end_inset
+
+ for any input
+\series bold
+ 
+\begin_inset Formula $\boldsymbol{x}$
+\end_inset
+
+
+\series default
+ given to the blackbox.
+ The reduced model of order 
+\begin_inset Formula $r$
+\end_inset
+
+ is then given by
+\begin_inset Formula 
+\begin{equation}
+f(t;\boldsymbol{x})\approx\sum_{k=1}^{r}z_{k}(\boldsymbol{x})\varphi_{k}(t).\label{eq:pca}
+\end{equation}
+
+\end_inset
+
+This approach is known as the Karhunen-Loéve (KL) expansion
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "newman1996_ModelReductionKarhunenLoeve"
+literal "false"
+
+\end_inset
+
+ in case 
+\begin_inset Formula $f(t;\boldsymbol{x})$
+\end_inset
+
+ are interpreted as realizations of a random process, or as the functional
+ principal component analysis (FPCA)
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "shang2014_SurveyFunctionalPrincipal"
+literal "false"
+
+\end_inset
+
+.
+ For our application, this distinction doesn't matter.
+ The KL expansion boils down to solving a regression problem in the non-orthogon
+al basis of 
+\begin_inset Formula $N$
+\end_inset
+
+ observed realizations to represent new observations.
+ Then an eigenvalue problem is solved to invert the 
+\begin_inset Formula $N\times N$
+\end_inset
+
+ collocation matrix with entries
+\begin_inset Formula 
+\begin{equation}
+M_{ij}=\left\langle f(t;\boldsymbol{x}_{i}),f(t;\boldsymbol{x}_{j})\right\rangle .
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here the inner product in Hilbert spaces and its approximation for a finite
+ set of support points is given by
 \begin_inset Formula 
 \begin{equation}
 \left\langle u,v\right\rangle =\int_{\Omega}u(t)v(t)\,\d t\approx\frac{1}{N_{t}}\sum_{k=1}^{N_{t}}u(t_{k})v(t_{k}).
@@ -559,73 +1009,57 @@ Inner product in Hilbert spaces and its approximation for a finite set of
 
 \end_inset
 
-Want to find a surrogate
-\begin_inset Formula 
-\begin{equation}
-\tilde{\Phi}:(\mathbb{H}_{1},\mathbb{R}^{n})\rightarrow\mathbb{R}^{p+n}\rightarrow\mathbb{R}^{q+m}\rightarrow(\mathbb{H}_{2},\mathbb{R}^{m}).
-\end{equation}
+If 
+\begin_inset Formula $N_{t}\gg N$
+\end_inset
 
+ (many support points, few samples), solving the eigenvalue problem of the
+ collocation matrix 
+\begin_inset Formula $M$
+\end_inset
+
+ is more efficient than the dual one of the covariance matrix 
+\begin_inset Formula $C$
+\end_inset
+
+ with 
+\begin_inset Formula $C_{ij}=\sum_{k}f(t_{i},\boldsymbol{x}_{k})f(t_{j},\boldsymbol{x}_{k})$
+\end_inset
+
+ in the usual PCA (see
+\begin_inset space ~
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-Reduced model:
-\begin_inset Formula 
-\begin{align}
-f(z,t) & =\sum_{k}z_{k}\phi_{k}(t)+\sigma\\
-p(f|z,t) & =\mathcal{N}(\sum_{k}z_{k}\phi_{k}(t),\sigma^{2})
-\end{align}
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bishop1995neural"
+literal "false"
 
 \end_inset
 
-Regression model:
-\begin_inset Formula 
-\[
-p(z|x)=\mathcal{N}(E(x),\sigma_{z}^{\,2}(x))
-\]
+ for their equivalence via the singular value decomposition of 
+\begin_inset Formula $Y_{ij}=f(t_{i},\boldsymbol{x}_{j})$
+\end_inset
 
+).
+ The question at which 
+\begin_inset Formula $r$
+\end_inset
+
+ to truncate the eigenspectrum in
+\begin_inset space ~
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-Reduction:
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{align}
-p(f|x,t) & =\int dzp(f|z,t)p(z|x)\\
- & =\int dz\,\exp\left(-\frac{(f-\sum_{k}z_{k}\phi_{k}(t))^{2}}{2\sigma^{2}}\right)\exp\left(-\frac{(z-E(x))^{2}}{2\sigma_{z}^{\,2}(x)}\right)\\
-\end{align}
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:pca"
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-Total:
-\begin_inset Formula 
-\begin{equation}
-p(x,f|y_{t},g_{t})=\frac{p(y_{t},g_{t}|x,f)p(x,f)}{p(y_{t},g_{t})}
-\end{equation}
-
-\end_inset
-
-
-\begin_inset Formula 
-\begin{align*}
-p(y_{t},g_{t}|x,f) & =\sum_{y,g}p(y_{t},g_{t},y,g|x,f)\\
- & =\sum_{y,g}p(y_{t},g_{t}|y,g,x,f)p(y,g|x,f)
-\end{align*}
-
-\end_inset
-
-
+ depends on the desired error in the output that is briefly analyzed in
+ the following paragraph.
 \end_layout
 
 \begin_layout Subsection
@@ -633,7 +1067,17 @@ Error estimate
 \end_layout
 
 \begin_layout Standard
-The truncated SVD can be shown to be the best linear approximation 
+Here we justify why we can assume an 
+\begin_inset Formula $L_{2}$
+\end_inset
+
+ truncation error of the order of the ratio 
+\begin_inset Formula $\lambda_{r}/\lambda_{1}$
+\end_inset
+
+ between the smallest eigenvalue considered in the approximation and the
+ largest one.
+ The truncated SVD can be shown to be the best linear approximation 
 \begin_inset Formula $M^{(r)}$
 \end_inset
 
@@ -725,7 +1169,7 @@ Representing
  error of
 \begin_inset Formula 
 \begin{equation}
-|(M^{(r)}-M)\boldsymbol{y}|^{2}/|\boldsymbol{y}|^{2}\leq\sum_{i=r+1}^{N}\lambda_{k}\leq(N-r)\lambda_{r}.
+|(M^{(r)}-M)\boldsymbol{y}|^{2}/|\boldsymbol{y}|^{2}\leq\sum_{k=r+1}^{N}\lambda_{k}\leq(N-r)\lambda_{r}.
 \end{equation}
 
 \end_inset
@@ -746,7 +1190,7 @@ The last estimate is relatively crude if
  with
 \begin_inset Formula 
 \begin{equation}
-\lambda_{k}\approx\lambda_{r}(k-r)^{\alpha},
+\lambda_{k}\approx\lambda_{r}(k-r)^{-\alpha},
 \end{equation}
 
 \end_inset
@@ -754,7 +1198,7 @@ The last estimate is relatively crude if
 one obtains
 \begin_inset Formula 
 \begin{equation}
-\sum_{k=r+1}^{N}\lambda_{k}\approx\sum_{k=r+1}^{\infty}\lambda_{r}(k-r)^{\alpha}=\lambda_{r}\sum_{k=1}^{\infty}k^{\alpha}=\lambda_{r}\zeta(-\alpha),
+\sum_{k=r+1}^{N}\lambda_{k}\approx\sum_{k=r+1}^{\infty}\lambda_{r}(k-r)^{-\alpha}=\lambda_{r}\sum_{k=1}^{\infty}k^{-\alpha}=\lambda_{r}\zeta(\alpha),
 \end{equation}
 
 \end_inset
@@ -776,7 +1220,7 @@ where
 \begin_inset Formula $\alpha\geq2$
 \end_inset
 
- (faster than geometric series, e.g.
+ (e.g.
  
 \begin_inset Formula $\zeta(3)=1.2$
 \end_inset
@@ -817,37 +1261,869 @@ Implementation and results
 \end_layout
 
 \begin_layout Standard
-The main algorithm proceeds in the following steps:
+The idea behind the realization of MCMC with a function-valued surrogate
+ is quite simple.
+ Instead of directly using the surrogate for the cost 
+\begin_inset Formula $\ell$
+\end_inset
+
+ with fixed 
+\begin_inset Formula $\theta$
+\end_inset
+
+, we take a step in-between.
+ Multiple surrogates 
+\begin_inset Formula $\tilde{z}_{k}(\boldsymbol{x})$
+\end_inset
+
+ are built, where each maps the input 
+\begin_inset Formula $\boldsymbol{x}$
+\end_inset
+
+ to one weight 
+\begin_inset Formula $z_{k}(\boldsymbol{x})$
+\end_inset
+
+ in the KL expansion.
+ A surrogate 
+\begin_inset Formula $\tilde{f}_{i}(\boldsymbol{x})\equiv\tilde{f}(t_{i};\boldsymbol{x})$
+\end_inset
+
+ for the model output is then given by replacing 
+\begin_inset Formula $z_{k}(\boldsymbol{x})$
+\end_inset
+
+ by 
+\begin_inset Formula $\tilde{z}_{k}(\boldsymbol{x})$
+\end_inset
+
+ in
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:pca"
+
+\end_inset
+
+.
+ The according surrogate 
+\begin_inset Formula $\tilde{\ell}(\boldsymbol{y};\boldsymbol{x},\theta)$
+\end_inset
+
+ for the cost function uses 
+\begin_inset Formula $\tilde{f}_{i}(\boldsymbol{x})$
+\end_inset
+
+ instead of 
+\begin_inset Formula $f_{i}(\boldsymbol{x})$
+\end_inset
+
+ in 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:logli"
+
+\end_inset
+
+.
+ Dependencies on 
+\begin_inset Formula $\theta$
+\end_inset
+
+ are kept exact in this approach.
+ The main algorithm proceeds in the following steps:
 \end_layout
 
 \begin_layout Enumerate
-Construct a coarse surrogate over the prior range.
+Construct a GP surrogate for the 
+\begin_inset Formula $L_{2}$
+\end_inset
+
+ cost function on a space-filling sample sequence over the whole prior range.
 \end_layout
 
 \begin_layout Enumerate
-Refine the surrogate near the posterior's mode by Bayesian global optimization.
+Refine the sampling points near the posterior's mode by Bayesian global
+ optimization with the 
+\begin_inset Formula $L_{2}$
+\end_inset
+
+ cost surrogate.
 \end_layout
 
 \begin_layout Enumerate
-Run the MCMC warm-up on the surrogate.
+Train a multi-output GP surrogate for the functional output 
+\begin_inset Formula $\boldsymbol{z}(\boldsymbol{x})$
+\end_inset
+
+ on the refined sampling points.
 \end_layout
 
 \begin_layout Enumerate
-Use the surrogate for delayed acceptance in the actual MCMC run.
+Use the function-valued surrogate for delayed acceptance in the MCMC run.
 \end_layout
 
-\begin_layout Section
-Ideas
+\begin_layout Standard
+For all GP surrogates we use a Matern
+\begin_inset space ~
+\end_inset
+
+5/2 kernel for 
+\begin_inset Formula $k(\boldsymbol{x},\boldsymbol{x}^{\prime})$
+\end_inset
+
+ together with a linear mean model for 
+\begin_inset Formula $m(\boldsymbol{x})$
+\end_inset
+
+, as realized in the Python package GPy
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gpy2014"
+literal "false"
+
+\end_inset
+
+.
+ For step 4 we use Gibbs sampling and the surrogate for 
+\begin_inset Formula $\boldsymbol{z}(\boldsymbol{x})$
+\end_inset
+
+ yielding the full output 
+\begin_inset Formula $\boldsymbol{y}(t,\boldsymbol{x})$
+\end_inset
+
+ rather than only the 
+\begin_inset Formula $L_{2}$
+\end_inset
+
+ distance to a certain reference dataset.
+ Even though The idea to iteratively refine the surrogate iteratively during
+ MCMC had to be abandoned early.
+ The problem is that detailed balance is violated as soon as the surrogate
+ proposal probabilities change when modifying the GP regressor with a new
+ point.
+ In the following application cases we compare a usual MCMC evaluation using
+ the full model to MCMC with delayed acceptance using the GP surrogate together
+ with the KL expansion/functional PCA (GP+KL) in the output function space.
+ 
 \end_layout
 
-\begin_layout Itemize
-Detailed balance violated by iterative construction of surrogate.
- When new point is added, should re-run through Markov chain using the surrogate
- up to this point (at least one correlation time back).
+\begin_layout Subsection
+Toy model
+\end_layout
+
+\begin_layout Standard
+First we test the quality of the algorithm on a toy model given by
+\begin_inset Formula 
+\begin{equation}
+y(t,\boldsymbol{x})=x_{1}\sin((t-x_{2})^{3}).\label{eq:y}
+\end{equation}
+
+\end_inset
+
+We choose reference values 
+\begin_inset Formula $x_{1}=1.15,\,x_{2}=1.4$
+\end_inset
+
+ to test calibration of 
+\begin_inset Formula $\boldsymbol{x}$
+\end_inset
+
+ against the according output 
+\begin_inset Formula $y^{\mathrm{ref}}(t)\equiv y(t,\boldsymbol{x}^{\mathrm{ref}})$
+\end_inset
+
+ and add Gaussian noise of amplitude 
+\begin_inset Formula $\sigma=0.05$
+\end_inset
+
+.
+ A flat prior is used for 
+\begin_inset Formula $\boldsymbol{x}$
+\end_inset
+
+.
+ For the hierarchical model case
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:like"
+
+\end_inset
+
+ we choose an starting guess of 
+\begin_inset Formula $\theta=2$
+\end_inset
+
+ for the norm's order and a Gaussian prior with 
+\begin_inset Formula $\sigma_{\theta}=0.5$
+\end_inset
+
+ around this value together with a positivity constraint.
+ The initial sampling domain in the square 
+\begin_inset Formula $x_{1},x_{2}\in(0,2)$
+\end_inset
+
+.
+ The comparison between MCMC and delayed acceptance MCMC is made once for
+ fixed 
+\begin_inset Formula $\theta=2$
+\end_inset
+
+ (Gaussian likelihood) and then for a hierarchical model with a random walk
+ also in 
+\begin_inset Formula $\theta$
+\end_inset
+
+.
+ The respective Markov chain with 
+\begin_inset Formula $10.000$
+\end_inset
+
+ steps has a correlation length of 
+\begin_inset Formula $\approx10$
+\end_inset
+
+ steps (Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Autocorrelation-over-lag"
+
+\end_inset
+
+) and yields a posterior parameter distribution for 
+\begin_inset Formula $(x_{1},x_{2})$
+\end_inset
+
+ depicted in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Top:-Gaussian-likelihood"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename fig/acor_mcmc.pdf
+	width 50col%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename fig/acor_mcmc_kl_da.pdf
+	width 50col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename fig/acor_mcmc_hi.pdf
+	width 50col%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename fig/acor_mcmc_kl_da_hi.pdf
+	width 50col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Autocorrelation over lag in MCMC steps for inputs 
+\begin_inset Formula $x_{1}$
+\end_inset
+
+ (solid) and 
+\begin_inset Formula $x_{2}$
+\end_inset
+
+ (dashed) in the toy model.
+ Top: Gaussian likelihood, bottom: hierarchical model.
+ Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Autocorrelation-over-lag"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename fig/hist2_mcmc.pdf
+	width 40col%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename fig/hist2_mcmc_kl_da.pdf
+	width 40col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename fig/hist2_mcmc_hi.pdf
+	width 40col%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename fig/hist2_mcmc_kl_da_hi.pdf
+	width 40col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Posterior distribution of calibrated parameters 
+\begin_inset Formula $\boldsymbol{x}$
+\end_inset
+
+ in
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:y"
+
+\end_inset
+
+.
+ Top: Gaussian likelihood, bottom: hierarchical model.
+ Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Top:-Gaussian-likelihood"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The results in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Top:-Gaussian-likelihood"
+
+\end_inset
+
+ show good agreement in the posterior distributions of full MCMC and delayed
+ acceptance MCMC.
+ Compared to the case with fixed 
+\begin_inset Formula $\theta=2$
+\end_inset
+
+, the additional freedom in 
+\begin_inset Formula $\theta$
+\end_inset
+
+ in the hierarchical model leads to further exploration of the parameter
+ space.
+ The posterior of 
+\begin_inset Formula $\theta$
+\end_inset
+
+ according to the Markov chain is given in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Posterior-distribution-of"
+
+\end_inset
+
+.
+ The similarity to the prior distribution shows that the data doesn't yield
+ new information on how to choose 
+\begin_inset Formula $\theta$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename fig/hist_theta_mcmc_hi.pdf
+	width 50col%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename fig/hist_theta_mcmc_kl_da_hi.pdf
+	width 50col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Posterior distribution of the fractional order 
+\begin_inset Formula $\theta$
+\end_inset
+
+ in the loss function with 
+\begin_inset Formula $\ell^{\theta}$
+\end_inset
+
+ norm.
+ Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Posterior-distribution-of"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Riverine diatom model
+\end_layout
+
+\begin_layout Standard
+The final application of the described method is on a riverine diatom model
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "callies2008_CalibrationUncertaintyAnalysis,scharfe2009_SimpleLagrangianModel,callies2021_ParameterDependencesArising"
+literal "false"
+
+\end_inset
+
+.
+ This model predicts the chlorophyl-A concentration at an observation point
+ at the Elbe river as a time series and depends on several input parameters.
+ For simplicity, and to limit computational resources, we select only two
+ of the six scalar inputs and use fixed values for the remaining four.
+ Namely, the chosen parameter 
+\begin_inset Formula $x_{1}=K_{\mathrm{light}}$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{2}=\mu_{0}$
+\end_inset
+
+ appear in the growth rate inside the diatom model.
+ The latter is given by the 
+\begin_inset Quotes eld
+\end_inset
+
+Smith formula
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "smith1936_PhotosynthesisRelationLight"
+literal "false"
+
+\end_inset
+
+ for photosynthesis,
+\begin_inset Formula 
+\[
+\mu(t)\propto\mu_{0}\frac{1}{D}\int_{0}^{D}\frac{I(t)e^{-\lambda(t)z}}{\sqrt{K_{\mathrm{light}}^{\,2}+I^{2}(t)e^{-2\lambda(t)z}}}\d z,
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $D$
+\end_inset
+
+ is the water depth, 
+\begin_inset Formula $I(t)$
+\end_inset
+
+ the prescribed radiation intensity.
+ Light attenuation 
+\begin_inset Formula $\lambda(t)\equiv\lambda_{S}C_{\mathrm{chl}}(t)$
+\end_inset
+
+ is modeled to be proportional to the chlorophyl-A concentration 
+\begin_inset Formula $C_{\mathrm{chl}}(t)$
+\end_inset
+
+.
+ At the same time, the time-series 
+\begin_inset Formula $C_{\mathrm{chl}}(t)\equiv y(t)$
+\end_inset
+
+ is also the functional model output for which the model is calibrated with
+ respect to a measurement 
+\begin_inset Formula $y_{\mathrm{ref}}(t)$
+\end_inset
+
+.
+ As the parameters are positive and limited by reasonable maximum values
+ from domain knowledge, we use a half-sided Cauchy (Lorentz) prior
+\begin_inset Formula 
+\begin{equation}
+p(x_{k})=\frac{2}{\pi}\frac{b_{k}}{b_{k}^{\,2}+x_{k}^{\,2}}\,\mathrm{\,for\,}\,x_{k}>0,\quad p(x_{k})=0\,\mathrm{\,for\,}\,x_{k}\leq0.
+\end{equation}
+
+\end_inset
+
+Here we choose a scale value 
+\begin_inset Formula $x_{k}^{\ast}$
+\end_inset
+
+ for which 
+\begin_inset Formula $P^{\ast}=90\%$
+\end_inset
+
+ of the probability volume is contained within 
+\begin_inset Formula $x_{k}<x_{k}^{\ast}$
+\end_inset
+
+.
+ Considering the cumulative distribution, we have to set
+\begin_inset Formula 
+\begin{equation}
+b_{k}=\frac{x_{k}^{\ast}}{\tan\left(\frac{\pi}{2}P^{\star}\right)}
+\end{equation}
+
+\end_inset
+
+to realize this condition.
+\end_layout
+
+\begin_layout Standard
+As in the case of the toy model, we use 
+\begin_inset Formula $10.000$
+\end_inset
+
+ steps in the Markov chain.
+ Results for autocorrelation and posterior samples using the full model
+ versus delayed acceptance are shown in Figs.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Autocorrelation-over-lag-1"
+
+\end_inset
+
+-
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Top:-Gaussian-likelihood-1"
+
+\end_inset
+
+.
+ The correlation time of 
+\begin_inset Formula $\approx500$
+\end_inset
+
+ steps is much larger than in the toy model, and the decay of the autocorrelatio
+n over the lag roughly matches between the two approaches.
+ Delayed acceptance sampling produces similar posterior samples in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Top:-Gaussian-likelihood-1"
+
+\end_inset
+
+ at about one third of the overall computation time.
+ There one also sees the issue of high correlation between 
+\begin_inset Formula $K_{\mathrm{light}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mu_{0}$
+\end_inset
+
+ in the posterior of the calibration, making Gibbs sampling inefficient
+ in that particular case.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename fig/acor_algae.pdf
+	width 50col%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename fig/acor_algae_da.pdf
+	width 50col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Autocorrelation over lag in MCMC steps for inputs 
+\begin_inset Formula $K_{\mathrm{light}}$
+\end_inset
+
+ (solid) and 
+\begin_inset Formula $\mu_{0}$
+\end_inset
+
+ (dashed) in the riverine diatom model.
+ Top: Gaussian likelihood, bottom: hierarchical model.
+ Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Autocorrelation-over-lag-1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename fig/mcmc_algae.pdf
+	width 40col%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename fig/mcmc_algae_da.pdf
+	width 40col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Posterior distribution of calibrated parameters for the riverine diatom
+ model.
+ Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Top:-Gaussian-likelihood-1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section*
-Summary and Outlook
+Conclusion and Outlook
+\end_layout
+
+\begin_layout Standard
+We have illustrated the application of function-valued surrogates to delayed
+ acceptance MCMC for parameter calibration in simple as well as hierarchical
+ Bayesian models.
+ Using a surrogate for the functional output rather than cost function or
+ likelihood is useful for several reasons.
+ Conceptually it allows to introduce additional distribution parameters
+ in Bayesian hierarchical models.
+ Our results emonstrate that it is possible and efficient to perform MCMC
+ with delayed acceptance on such models while keeping dependencies in these
+ additional parameters exact.
+ In particular, the fractional order of the norm appearing in the cost function
+ has been left free, which is useful for robust model calibration.
+ 
+\end_layout
+
+\begin_layout Standard
+The method was applied to a toy model and an application case of a riverine
+ diatom model.
+ In both cases, using delayed acceptance with a surrogate for the functional
+ output produced results comparable to using the full model at only about
+ one third of actual model evaulations.
+ Compared to direct surrogate modeling of the cost function we could also
+ observe an increase in the quality of the predicted cost.
+ This is likely connected to the higher flexibility of modeling weights
+ to multiple principal components with Gaussian processes with individual
+ hyperparameters.
+\end_layout
+
+\begin_layout Standard
+The described approach is not immune to the curse of dimensionality.
+ On the one hand, the number of required GP regressors grows linearly with
+ the effective dimension of the 
+\emph on
+output
+\emph default
+ function space.
+ Since evaluation is fast and parallelizable, this is a minor issue in practice.
+ On the other hand, increasing the dimension of the 
+\emph on
+input
+\emph default
+ space soon prohibits the construction of a reliable surrogate due to the
+ required number training points to fill the parameter space.
+ In such cases, the preprocessing overhead is expected to outweigh the speedup
+ of delayed acceptance MCMC for either functional or scalar surrogates.
+ More detailed investigations will be required to give quantitative estimates
+ on this tradeoff.
 \end_layout
 
 \begin_layout Section*
