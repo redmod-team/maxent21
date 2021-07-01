@@ -198,8 +198,8 @@ plt.semilogy(ymin)
 # %% MCMC
 
 nvar = 2
-niwarm = 4
-nwarm = 250
+niwarm = 5
+nwarm = 500
 nmc = 10000
 nstep = nwarm + nmc
 
