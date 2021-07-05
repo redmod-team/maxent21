@@ -552,7 +552,7 @@ literal "false"
 \begin_inset Formula 
 \begin{align}
 \bar{f}(\boldsymbol{x}^{\ast}) & =m(\boldsymbol{x}^{\ast})+K^{\ast}(K+\sigma_{n}I)^{-1}\boldsymbol{y},\\
-\mathrm{var}[\bar{f}(\boldsymbol{x}^{\ast})] & =K^{\ast\ast}-K^{\ast}(K+\sigma_{n}I)^{-1}K^{\ast T}\boldsymbol{y},
+\mathrm{var}[\bar{f}(\boldsymbol{x}^{\ast})] & =K^{\ast\ast}-K^{\ast}(K+\sigma_{n}I)^{-1}K^{\ast T},
 \end{align}
 
 \end_inset
@@ -632,7 +632,7 @@ literal "false"
 \begin_inset Formula 
 \begin{align}
 a_{\mathrm{EI}}(\boldsymbol{x}^{\star}) & =E[\mathrm{min}(0,\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})|\boldsymbol{x}^{\ast},\mathcal{D}]\nonumber \\
- & =(\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})\Phi(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}(f(\boldsymbol{x}^{\ast})))-\mathrm{var}(f(\boldsymbol{x}^{\ast}))\mathcal{N}(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}(f(\boldsymbol{x}^{\ast}))),
+ & =(\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})\Phi(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}[f(\boldsymbol{x}^{\ast})])-\mathrm{var}[f(\boldsymbol{x}^{\ast})]\mathcal{N}(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}[f(\boldsymbol{x}^{\ast})]),
 \end{align}
 
 \end_inset
