@@ -8,9 +8,9 @@
 \begin_preamble
 %=================================================================
 % MDPI internal commands
-%\firstpage{1} 
-\makeatletter 
-%\setcounter{page}{\@firstpage} 
+%\firstpage{1}
+\makeatletter
+%\setcounter{page}{\@firstpage}
 \makeatother
 \pubvolume{1}
 \issuenum{1}
@@ -18,9 +18,9 @@
 \pubyear{2021}
 \copyrightyear{2021}
 %\externaleditor{Academic Editor: Firstname Lastname} % For journal Automation, please change Academic Editor to "Communicated by"
-\datereceived{} 
-\dateaccepted{} 
-\datepublished{} 
+\datereceived{}
+\dateaccepted{}
+\datepublished{}
 \hreflink{https://doi.org/} % If needed use \linebreak
 
 %=================================================================
@@ -58,7 +58,7 @@ $^{2}$ \quad Helmholtz-Zentrum Hereon, 21502 Geesthacht, Germany}
 \corres{Correspondence: albert@alumni.tugraz.at}
 
 % Current address and/or shared authorship
-%\firstnote{Current address: Affiliation 3} 
+%\firstnote{Current address: Affiliation 3}
 %\secondnote{These authors contributed equally to this work.}
 % The commands \thirdnote{} till \eighthnote{} are available for further notes
 
@@ -66,29 +66,29 @@ $^{2}$ \quad Helmholtz-Zentrum Hereon, 21502 Geesthacht, Germany}
 
 %\conference{} % An extended version of a conference paper
 
-% Abstract (Do not insert blank lines, i.e. \\) 
+% Abstract (Do not insert blank lines, i.e. \\)
 \abstract{We present an approach to enhance performance and flexibility of Bayesian
 inference of model parameters based on observation of measured data.
 Going beyond usual surrogate-enhanced Monte-Carlo or optimization
 methods that focus on a scalar loss, we put emphasis on function-valued
 output of formally infinite dimension. For this purpose,
 the surrogate models are built on a combination of linear dimensionality
-reduction in an adaptive basis of principal components and Gaussian process 
+reduction in an adaptive basis of principal components and Gaussian process
 regression for the map between reduced
 feature spaces. Since the decoded surrogate provides the full model
 output rather than only the loss, it is re-usable for multiple calibration
 measurements as well as different loss metrics and consequently allows
-for flexible marginalization over such quantities and application to Bayesian 
+for flexible marginalization over such quantities and application to Bayesian
 hierarchical models. We evaluate the
-method's performance based on a case study of a toy model and a 
+method's performance based on a case study of a toy model and a
 simple riverine diatom
 model for the Elbe river. As input data, this model uses six tunable scalar parameters as well
-as silica concentrations in the upper reach of the river together with 
+as silica concentrations in the upper reach of the river together with
 continuous time-series of temperature, radiation and river discharge over a specific
 year. The output consists of continuous time-series
 data that are calibrated against corresponding measurements from the Geesthacht Weir
 station at the Elbe river.
-For this study, only two scalar inputs are considered together with a 
+For this study, only two scalar inputs are considered together with a
 function-valued output and compared to an existing model calibration using direct
 simulation runs without a surrogate.}
 
@@ -106,7 +106,7 @@ Gaussian process regression; dimensionality reduction}
 \use_default_options false
 \maintain_unincluded_children false
 \language english
-\language_package 
+\language_package
 \inputencoding utf8
 \fontencoding T1
 \font_roman "times" "default"
@@ -317,22 +317,22 @@ Gaussian process regression; dimensionality reduction}
 \newcommand{\pt}{\partial}
 \end_inset
 
- 
+
 \begin_inset FormulaMacro
 \newcommand{\no}{\nonumber}
 \end_inset
 
- 
+
 \begin_inset FormulaMacro
 \newcommand{\del}{\delta}
 \end_inset
 
- 
+
 \begin_inset FormulaMacro
 \newcommand{\tg}{\tau_{g}}
 \end_inset
 
- 
+
 \begin_inset FormulaMacro
 \newcommand{\tba}{\bar{\tau}}
 \end_inset
@@ -382,7 +382,7 @@ literal "false"
  output of a blackbox model to be calibrated against reference data.
  Typical examples are numerical simulations that output time-series or spatial
  data and depend on tunable input parameterers.
- 
+
 \end_layout
 
 \begin_layout Standard
@@ -487,7 +487,7 @@ literal "false"
 
  compares the use of a multi-output GP surrogate with a Kronecker structure
  to an adaptive basis approach.
- 
+
 \end_layout
 
 \begin_layout Standard
@@ -497,7 +497,7 @@ The present contribution relies on the adaptive basis approach in principal
  in this basis via GP regression.
  We demonstrate the application of this approach on two examples using usual
  and hierarchical Bayesian model calibration.
- In the latter case, a surrogate beyond the 
+ In the latter case, a surrogate beyond the
 \begin_inset Formula $L_{2}$
 \end_inset
 
@@ -526,30 +526,30 @@ literal "false"
 \end_inset
 
  is a commonly used tool to construct flexible non-parameteric surrogates.
- Based on observed outputs 
+ Based on observed outputs
 \begin_inset Formula $f(\boldsymbol{x}_{k})$
 \end_inset
 
- at training points 
+ at training points
 \begin_inset Formula $\boldsymbol{x}_{k}$
 \end_inset
 
- and a covariance function 
+ and a covariance function
 \begin_inset Formula $k(\boldsymbol{x},\boldsymbol{x}^{\prime})$
 \end_inset
 
 , the GP regressor predicts a Gaussian posterior distribution at any point
- 
+
 \begin_inset Formula $\boldsymbol{x}^{\ast}$
 \end_inset
 
 .
- For a single prediction 
+ For a single prediction
 \begin_inset Formula $f(\boldsymbol{x}^{\ast})$
 \end_inset
 
 , expected value and variance of this distribution are given by
-\begin_inset Formula 
+\begin_inset Formula
 \begin{align}
 \bar{f}(\boldsymbol{x}^{\ast}) & =m(\boldsymbol{x}^{\ast})+K^{\ast}(K+\sigma_{n}I)^{-1}\boldsymbol{y},\\
 \mathrm{var}[\bar{f}(\boldsymbol{x}^{\ast})] & =K^{\ast\ast}-K^{\ast}(K+\sigma_{n}I)^{-1}K^{\ast T},
@@ -557,38 +557,38 @@ literal "false"
 
 \end_inset
 
-where 
+where
 \begin_inset Formula $m(\boldsymbol{x}^{\ast})$
 \end_inset
 
- is the mean model, the covariance matrix 
+ is the mean model, the covariance matrix
 \begin_inset Formula $K$
 \end_inset
 
- contains entries 
+ contains entries
 \begin_inset Formula $K_{ij}=k(\boldsymbol{x}_{i},\boldsymbol{x}_{j})$
 \end_inset
 
- based on the training set, 
+ based on the training set,
 \begin_inset Formula $K_{i}^{\ast}(\boldsymbol{x}^{\ast},\boldsymbol{x}_{i})$
 \end_inset
 
- are entries of a row vector, and 
+ are entries of a row vector, and
 \begin_inset Formula $K^{\ast\ast}=k(\boldsymbol{x}^{\ast},\boldsymbol{x}^{\ast})$
 \end_inset
 
  is a scalar.
- The unit matrix 
+ The unit matrix
 \begin_inset Formula $I$
 \end_inset
 
- is added with the noise covariance 
+ is added with the noise covariance
 \begin_inset Formula $\sigma_{n}$
 \end_inset
 
  that regularizes the problem and is usually estimated in an optimization
  loop together with other kernel hyperparameters.
- 
+
 \end_layout
 
 \begin_layout Standard
@@ -620,16 +620,16 @@ literal "false"
 
 \end_inset
 
-) at a newly observed location 
+) at a newly observed location
 \begin_inset Formula $\boldsymbol{x}^{\ast}$
 \end_inset
 
- given existing training data 
+ given existing training data
 \begin_inset Formula $\mathcal{D}$
 \end_inset
 
 ,
-\begin_inset Formula 
+\begin_inset Formula
 \begin{align}
 a_{\mathrm{EI}}(\boldsymbol{x}^{\star}) & =E[\mathrm{min}(0,\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})|\boldsymbol{x}^{\ast},\mathcal{D}]\nonumber \\
  & =(\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})\Phi(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}[f(\boldsymbol{x}^{\ast})])-\mathrm{var}[f(\boldsymbol{x}^{\ast})]\mathcal{N}(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}[f(\boldsymbol{x}^{\ast})]),
@@ -637,11 +637,11 @@ a_{\mathrm{EI}}(\boldsymbol{x}^{\star}) & =E[\mathrm{min}(0,\bar{f}(\boldsymbol{
 
 \end_inset
 
-where 
+where
 \begin_inset Formula $\hat{f}$
 \end_inset
 
- is the optimum value for 
+ is the optimum value for
 \begin_inset Formula $f(\boldsymbol{x})$
 \end_inset
 
@@ -658,7 +658,7 @@ Delayed acceptance MCMC
 \end_layout
 
 \begin_layout Standard
-Delayed acceptance MCMC builds on a fast surrogate for the posterior 
+Delayed acceptance MCMC builds on a fast surrogate for the posterior
 \begin_inset Formula $\tilde{p}(\boldsymbol{x}|\boldsymbol{y})$
 \end_inset
 
@@ -676,32 +676,32 @@ literal "false"
 
 .
  Following the usual Metropolis-Hastings algorithm, the probability to accept
- a new proposal 
+ a new proposal
 \begin_inset Formula $\boldsymbol{x}^{\ast}$
 \end_inset
 
- in this first stage in the 
+ in this first stage in the
 \begin_inset Formula $n$
 \end_inset
 
 -the step of the Markov chain is as usual,
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 \tilde{P}_{\mathrm{acc}}^{n}=\frac{\tilde{p}(\boldsymbol{x}^{\ast}|\boldsymbol{y})}{\tilde{p}(\boldsymbol{x}_{n-1}|\boldsymbol{y})}\frac{g(\boldsymbol{x}_{n-1}|\boldsymbol{x}^{\ast})}{g(\boldsymbol{x}^{\ast}|\boldsymbol{x}_{n-1})},
 \end{equation}
 
 \end_inset
 
-where 
+where
 \begin_inset Formula $g$
 \end_inset
 
  is a transition probability that has been suitably tuned during warmup.
- The true posterior 
+ The true posterior
 \begin_inset Formula $p(\boldsymbol{x}|\boldsymbol{y})$
 \end_inset
 
- is only evaluated if the proposal 
+ is only evaluated if the proposal
 \begin_inset Quotes eld
 \end_inset
 
@@ -710,7 +710,7 @@ survives
 \end_inset
 
  this first stage and enters the final acceptance probability
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 P_{\mathrm{acc}}^{n}=\frac{p(\boldsymbol{x}^{\ast}|\boldsymbol{y})}{p(\boldsymbol{x}_{n-1}|\boldsymbol{y})}\frac{\tilde{p}(\boldsymbol{x}_{n-1}|\boldsymbol{y})}{\tilde{p}(\boldsymbol{x}^{\ast}|\boldsymbol{y})}.
 \end{equation}
@@ -719,7 +719,7 @@ P_{\mathrm{acc}}^{n}=\frac{p(\boldsymbol{x}^{\ast}|\boldsymbol{y})}{p(\boldsymbo
 
 Actual computation is, as usually, performed in the logarithmic space with
  cost function
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 \ell(\boldsymbol{x}|\boldsymbol{y})\equiv-\mathrm{log}p(\boldsymbol{x}|\boldsymbol{y}).
 \end{equation}
@@ -727,11 +727,11 @@ Actual computation is, as usually, performed in the logarithmic space with
 \end_inset
 
 If this function is fixed, it is most convenient to just directly build
- a surrogate 
+ a surrogate
 \begin_inset Formula $\tilde{\ell}(\boldsymbol{y}|\boldsymbol{x})$
 \end_inset
 
- for the likelihood 
+ for the likelihood
 \begin_inset Formula $\ell(\boldsymbol{y}|\boldsymbol{x})$
 \end_inset
 
@@ -744,11 +744,11 @@ Bayesian hierarchical models and fractional norms
 
 \begin_layout Standard
 One application of modeling the full functional output instead of only the
- cost function is the existence of additional distribution parameters 
+ cost function is the existence of additional distribution parameters
 \begin_inset Formula $\btheta$
 \end_inset
 
- in the likelihood besides the original model inputs 
+ in the likelihood besides the original model inputs
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
@@ -765,37 +765,37 @@ literal "false"
 
 \end_inset
 
-, where 
+, where
 \begin_inset Formula $\btheta$
 \end_inset
 
  are again subject to a certain (prior) distribution with possibly further
  levels of hyperparameters.
  There are essentially two ways to construct a surrogate with support for
- additional parameters 
+ additional parameters
 \begin_inset Formula $\btheta$
 \end_inset
 
-: Building a surrogate for the cost function that adds 
+: Building a surrogate for the cost function that adds
 \begin_inset Formula $\btheta$
 \end_inset
 
  as independent variables, or constructing a surrogate with functional output
- for 
+ for
 \begin_inset Formula $f_{k}(\boldsymbol{x})$
 \end_inset
 
- and keeping the dependencies on 
+ and keeping the dependencies on
 \begin_inset Formula $\btheta$
 \end_inset
 
  exact.
  Here we focus on the latter, and apply this surrogate within delayed acceptance
- MCMC with both, 
+ MCMC with both,
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
- and 
+ and
 \begin_inset Formula $\btheta$
 \end_inset
 
@@ -804,7 +804,7 @@ literal "false"
 
 \begin_layout Standard
 As an example we use a more general noise model than the usual Gaussian
- likelihood that builds on arbitrary 
+ likelihood that builds on arbitrary
 \begin_inset Formula $\ell^{\theta}$
 \end_inset
 
@@ -820,76 +820,76 @@ literal "false"
 
 \end_inset
 
- with real-valued 
+ with real-valued
 \begin_inset Formula $\theta$
 \end_inset
 
  not fixed while traversing the Markov chain.
  We allow members of the exponential family for observational noise and
- specify only its scale, but keep 
+ specify only its scale, but keep
 \begin_inset Formula $\theta$
 \end_inset
 
  as a free parameter.
- Namely, we model the likelihood for observing 
+ Namely, we model the likelihood for observing
 \begin_inset Formula $\boldsymbol{y}$
 \end_inset
 
- in the output as 
+ in the output as
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 p(\boldsymbol{y}|\boldsymbol{x},\theta)=\frac{1}{2\sqrt{2}\sigma\,\Gamma(1+\theta^{-1})}e^{-\ell(\boldsymbol{y};\boldsymbol{x},\theta)},\label{eq:like}
 \end{equation}
 
 \end_inset
 
-with the normalized 
+with the normalized
 \begin_inset Formula $\ell^{\theta}$
 \end_inset
 
- norm to the power of 
+ norm to the power of
 \begin_inset Formula $\theta$
 \end_inset
 
 ,
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 \ell(\boldsymbol{y};\boldsymbol{x},\theta)\equiv\frac{1}{D}\sum_{i=1}^{D}\left|\frac{y_{i}-f_{i}(\boldsymbol{x})}{\sqrt{2}\sigma}\right|^{\theta}\label{eq:logli}
 \end{equation}
 
 \end_inset
 
-as the loss function between observed data 
+as the loss function between observed data
 \begin_inset Formula $y_{i}$
 \end_inset
 
- and blackbox model 
+ and blackbox model
 \begin_inset Formula $f_{i}(\boldsymbol{x})$
 \end_inset
 
 .
- Choosing the usual 
+ Choosing the usual
 \begin_inset Formula $L_{2}$
 \end_inset
 
  norm leads to a Gaussian likelihood for the noise model, whereas using
- the 
+ the
 \begin_inset Formula $L_{1}$
 \end_inset
 
  norm means Laplacian noise.
- To maintain the relative scale when varying 
+ To maintain the relative scale when varying
 \begin_inset Formula $\theta$
 \end_inset
 
-, it is important to add the term 
+, it is important to add the term
 \begin_inset Formula $\log\Gamma(1+\theta^{-1})$
 \end_inset
 
- from 
+ from
 \begin_inset CommandInset ref
 LatexCommand eqref
 reference "eq:like"
@@ -898,7 +898,7 @@ reference "eq:like"
 
  to the negative log-likelihood.
  In the following use cases we are going to compare the cases of fixed and
- variable 
+ variable
 \begin_inset Formula $\theta$
 \end_inset
 
@@ -910,40 +910,40 @@ Linear dimension reduction via principal components
 \end_layout
 
 \begin_layout Standard
-Formally, the blackbox output for given input 
+Formally, the blackbox output for given input
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
- can be a function 
+ can be a function
 \begin_inset Formula $f(t)\in\mathbb{H}$
 \end_inset
 
  in an infinite-dimensional Hilbert space (though sampled at a finite number
  of points in practice).
  Linear dimension reduction in such a space means finding the optimum set
- of basis functions 
+ of basis functions
 \begin_inset Formula $\varphi_{k}(t)$
 \end_inset
 
- that spans the output space 
+ that spans the output space
 \begin_inset Formula $f(t;\boldsymbol{x})$
 \end_inset
 
  for any input
 \series bold
- 
+
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
 
 \series default
  given to the blackbox.
- The reduced model of order 
+ The reduced model of order
 \begin_inset Formula $r$
 \end_inset
 
  is then given by
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 f(t;\boldsymbol{x})\approx\sum_{k=1}^{r}z_{k}(\boldsymbol{x})\varphi_{k}(t).\label{eq:pca}
 \end{equation}
@@ -962,7 +962,7 @@ literal "false"
 
 \end_inset
 
- in case 
+ in case
 \begin_inset Formula $f(t;\boldsymbol{x})$
 \end_inset
 
@@ -982,17 +982,17 @@ literal "false"
 .
  For our application, this distinction doesn't matter.
  The KL expansion boils down to solving a regression problem in the non-orthogon
-al basis of 
+al basis of
 \begin_inset Formula $N$
 \end_inset
 
  observed realizations to represent new observations.
- Then an eigenvalue problem is solved to invert the 
+ Then an eigenvalue problem is solved to invert the
 \begin_inset Formula $N\times N$
 \end_inset
 
  collocation matrix with entries
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 M_{ij}=\left\langle f(t;\boldsymbol{x}_{i}),f(t;\boldsymbol{x}_{j})\right\rangle .
 \end{equation}
@@ -1005,27 +1005,27 @@ M_{ij}=\left\langle f(t;\boldsymbol{x}_{i}),f(t;\boldsymbol{x}_{j})\right\rangle
 \begin_layout Standard
 Here the inner product in Hilbert spaces and its approximation for a finite
  set of support points is given by
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 \left\langle u,v\right\rangle =\int_{\Omega}u(t)v(t)\,\d t\approx\frac{1}{N_{t}}\sum_{k=1}^{N_{t}}u(t_{k})v(t_{k}).
 \end{equation}
 
 \end_inset
 
-If 
+If
 \begin_inset Formula $N_{t}\gg N$
 \end_inset
 
  (many support points, few samples), solving the eigenvalue problem of the
- collocation matrix 
+ collocation matrix
 \begin_inset Formula $M$
 \end_inset
 
- is more efficient than the dual one of the covariance matrix 
+ is more efficient than the dual one of the covariance matrix
 \begin_inset Formula $C$
 \end_inset
 
- with 
+ with
 \begin_inset Formula $C_{ij}=\sum_{k}f(t_{i},\boldsymbol{x}_{k})f(t_{j},\boldsymbol{x}_{k})$
 \end_inset
 
@@ -1041,12 +1041,12 @@ literal "false"
 
 \end_inset
 
- for their equivalence via the singular value decomposition of 
+ for their equivalence via the singular value decomposition of
 \begin_inset Formula $Y_{ij}=f(t_{i},\boldsymbol{x}_{j})$
 \end_inset
 
 ).
- The question at which 
+ The question at which
 \begin_inset Formula $r$
 \end_inset
 
@@ -1070,37 +1070,37 @@ Error estimate
 \end_layout
 
 \begin_layout Standard
-Here we justify why we can assume an 
+Here we justify why we can assume an
 \begin_inset Formula $L_{2}$
 \end_inset
 
- truncation error of the order of the ratio 
+ truncation error of the order of the ratio
 \begin_inset Formula $\lambda_{r}/\lambda_{1}$
 \end_inset
 
  between the smallest eigenvalue considered in the approximation and the
  largest one.
- The truncated SVD can be shown to be the best linear approximation 
+ The truncated SVD can be shown to be the best linear approximation
 \begin_inset Formula $M^{(r)}$
 \end_inset
 
- of lower rank 
+ of lower rank
 \begin_inset Formula $r$
 \end_inset
 
- to an 
+ to an
 \begin_inset Formula $N\times N$
 \end_inset
 
- matrix 
+ matrix
 \begin_inset Formula $M$
 \end_inset
 
- in terms of the Frobenius norm 
+ in terms of the Frobenius norm
 \begin_inset Formula $||M||_{\mathrm{F}}$
 \end_inset
 
- (see, e.g., 
+ (see, e.g.,
 \begin_inset CommandInset citation
 LatexCommand cite
 key "cadzow1987spectral"
@@ -1109,30 +1109,30 @@ literal "false"
 \end_inset
 
 ).
- Its value is simply computed from the 
+ Its value is simply computed from the
 \begin_inset Formula $L_{2}$
 \end_inset
 
  norm of singular values,
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 ||M||_{\mathrm{F}}=\left(\sum_{k=1}^{N}\sigma_{k}^{\,2}\right)^{1/2},
 \end{equation}
 
 \end_inset
 
-where 
+where
 \begin_inset Formula $\sigma_{k}^{\,2}=\lambda_{k}$
 \end_inset
 
- in case of real eigenvalues 
+ in case of real eigenvalues
 \begin_inset Formula $\lambda_{k}$
 \end_inset
 
  of a positive semi-definite matrix as for the covariance or collocation
  matrix.
  The truncation error is given by
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 ||M^{(r)}-M||_{\mathrm{F}}=\left(\sum_{k=r+1}^{N}\lambda_{k}\right)^{1/2}.
 \end{equation}
@@ -1140,58 +1140,58 @@ where
 \end_inset
 
  The error estimate for the KL expansion uses this convenient property together
- with the fact that the Frobenius norm is compatible with the usual 
+ with the fact that the Frobenius norm is compatible with the usual
 \begin_inset Formula $L_{2}$
 \end_inset
 
- norm 
+ norm
 \begin_inset Formula $|\boldsymbol{x}|$
 \end_inset
 
- of vectors 
+ of vectors
 \begin_inset Formula $\boldsymbol{y}$
 \end_inset
 
 , i.e.
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 |M\boldsymbol{y}|\leq||M||_{\mathrm{F}}|\boldsymbol{y}|.
 \end{equation}
 
 \end_inset
 
-Representing 
+Representing
 \begin_inset Formula $\boldsymbol{y}$
 \end_inset
 
- via the first 
+ via the first
 \begin_inset Formula $r$
 \end_inset
 
  eigenvalues of the collocation matrix yields a relative squared reconstruction
  error of
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 |(M^{(r)}-M)\boldsymbol{y}|^{2}/|\boldsymbol{y}|^{2}\leq\sum_{k=r+1}^{N}\lambda_{k}\leq(N-r)\lambda_{r}.
 \end{equation}
 
 \end_inset
 
-The last estimate is relatively crude if 
+The last estimate is relatively crude if
 \begin_inset Formula $N\gg r$
 \end_inset
 
- and the spectrum decays fast with the index variable 
+ and the spectrum decays fast with the index variable
 \begin_inset Formula $k$
 \end_inset
 
 .
- If one assumes a decay rate 
+ If one assumes a decay rate
 \begin_inset Formula $\alpha$
 \end_inset
 
  with
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 \lambda_{k}\approx\lambda_{r}(k-r)^{-\alpha},
 \end{equation}
@@ -1199,64 +1199,64 @@ The last estimate is relatively crude if
 \end_inset
 
 one obtains
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 \sum_{k=r+1}^{N}\lambda_{k}\approx\sum_{k=r+1}^{\infty}\lambda_{r}(k-r)^{-\alpha}=\lambda_{r}\sum_{k=1}^{\infty}k^{-\alpha}=\lambda_{r}\zeta(\alpha),
 \end{equation}
 
 \end_inset
 
-where 
+where
 \begin_inset Formula $\zeta$
 \end_inset
 
  is the Riemann zeta function.
- This function diverges for a spectral decay of order 
+ This function diverges for a spectral decay of order
 \begin_inset Formula $\alpha=1$
 \end_inset
 
- and reaches its asymptotic value 
+ and reaches its asymptotic value
 \begin_inset Formula $\zeta(\infty)=1$
 \end_inset
 
- relatively quickly for 
+ relatively quickly for
 \begin_inset Formula $\alpha\geq2$
 \end_inset
 
  (e.g.
- 
+
 \begin_inset Formula $\zeta(3)=1.2$
 \end_inset
 
 ).
- The spectral decay rate 
+ The spectral decay rate
 \begin_inset Formula $\alpha$
 \end_inset
 
- can be fitted in a log-log plot of 
+ can be fitted in a log-log plot of
 \begin_inset Formula $\lambda_{k}$
 \end_inset
 
- over index 
+ over index
 \begin_inset Formula $k$
 \end_inset
 
- and takes values between 
+ and takes values between
 \begin_inset Formula $\alpha=3$
 \end_inset
 
- and 
+ and
 \begin_inset Formula $5$
 \end_inset
 
  in our use case.
  The underlying assumptions are violated if the spectrum stagnates at a
- large number of constant eigenvalues for higher indices 
+ large number of constant eigenvalues for higher indices
 \begin_inset Formula $k$
 \end_inset
 
 .
- 
+
 \end_layout
 
 \begin_layout Section
@@ -1266,37 +1266,37 @@ Implementation and results
 \begin_layout Standard
 The idea behind the realization of MCMC with a function-valued surrogate
  is quite simple.
- Instead of directly using the surrogate for the cost 
+ Instead of directly using the surrogate for the cost
 \begin_inset Formula $\ell$
 \end_inset
 
- with fixed 
+ with fixed
 \begin_inset Formula $\theta$
 \end_inset
 
 , we take a step in-between.
- Multiple surrogates 
+ Multiple surrogates
 \begin_inset Formula $\tilde{z}_{k}(\boldsymbol{x})$
 \end_inset
 
- are built, where each maps the input 
+ are built, where each maps the input
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
- to one weight 
+ to one weight
 \begin_inset Formula $z_{k}(\boldsymbol{x})$
 \end_inset
 
  in the KL expansion.
- A surrogate 
+ A surrogate
 \begin_inset Formula $\tilde{f}_{i}(\boldsymbol{x})\equiv\tilde{f}(t_{i};\boldsymbol{x})$
 \end_inset
 
- for the model output is then given by replacing 
+ for the model output is then given by replacing
 \begin_inset Formula $z_{k}(\boldsymbol{x})$
 \end_inset
 
- by 
+ by
 \begin_inset Formula $\tilde{z}_{k}(\boldsymbol{x})$
 \end_inset
 
@@ -1312,19 +1312,19 @@ reference "eq:pca"
 \end_inset
 
 .
- The according surrogate 
+ The according surrogate
 \begin_inset Formula $\tilde{\ell}(\boldsymbol{y};\boldsymbol{x},\theta)$
 \end_inset
 
- for the cost function uses 
+ for the cost function uses
 \begin_inset Formula $\tilde{f}_{i}(\boldsymbol{x})$
 \end_inset
 
- instead of 
+ instead of
 \begin_inset Formula $f_{i}(\boldsymbol{x})$
 \end_inset
 
- in 
+ in
 \begin_inset CommandInset ref
 LatexCommand eqref
 reference "eq:logli"
@@ -1332,7 +1332,7 @@ reference "eq:logli"
 \end_inset
 
 .
- Dependencies on 
+ Dependencies on
 \begin_inset Formula $\theta$
 \end_inset
 
@@ -1341,7 +1341,7 @@ reference "eq:logli"
 \end_layout
 
 \begin_layout Enumerate
-Construct a GP surrogate for the 
+Construct a GP surrogate for the
 \begin_inset Formula $L_{2}$
 \end_inset
 
@@ -1350,7 +1350,7 @@ Construct a GP surrogate for the
 
 \begin_layout Enumerate
 Refine the sampling points near the posterior's mode by Bayesian global
- optimization with the 
+ optimization with the
 \begin_inset Formula $L_{2}$
 \end_inset
 
@@ -1358,7 +1358,7 @@ Refine the sampling points near the posterior's mode by Bayesian global
 \end_layout
 
 \begin_layout Enumerate
-Train a multi-output GP surrogate for the functional output 
+Train a multi-output GP surrogate for the functional output
 \begin_inset Formula $\boldsymbol{z}(\boldsymbol{x})$
 \end_inset
 
@@ -1374,11 +1374,11 @@ For all GP surrogates we use a Matern
 \begin_inset space ~
 \end_inset
 
-5/2 kernel for 
+5/2 kernel for
 \begin_inset Formula $k(\boldsymbol{x},\boldsymbol{x}^{\prime})$
 \end_inset
 
- together with a linear mean model for 
+ together with a linear mean model for
 \begin_inset Formula $m(\boldsymbol{x})$
 \end_inset
 
@@ -1395,15 +1395,15 @@ literal "false"
 \end_inset
 
 .
- For step 4 we use Gibbs sampling and the surrogate for 
+ For step 4 we use Gibbs sampling and the surrogate for
 \begin_inset Formula $\boldsymbol{z}(\boldsymbol{x})$
 \end_inset
 
- yielding the full output 
+ yielding the full output
 \begin_inset Formula $\boldsymbol{y}(t,\boldsymbol{x})$
 \end_inset
 
- rather than only the 
+ rather than only the
 \begin_inset Formula $L_{2}$
 \end_inset
 
@@ -1416,7 +1416,7 @@ literal "false"
  In the following application cases we compare a usual MCMC evaluation using
  the full model to MCMC with delayed acceptance using the GP surrogate together
  with the KL expansion/functional PCA (GP+KL) in the output function space.
- 
+
 \end_layout
 
 \begin_layout Subsection
@@ -1425,31 +1425,31 @@ Toy model
 
 \begin_layout Standard
 First we test the quality of the algorithm on a toy model given by
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 y(t,\boldsymbol{x})=x_{1}\sin((t-x_{2})^{3}).\label{eq:y}
 \end{equation}
 
 \end_inset
 
-We choose reference values 
+We choose reference values
 \begin_inset Formula $x_{1}=1.15,\,x_{2}=1.4$
 \end_inset
 
- to test calibration of 
+ to test calibration of
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
- against the according output 
+ against the according output
 \begin_inset Formula $y^{\mathrm{ref}}(t)\equiv y(t,\boldsymbol{x}^{\mathrm{ref}})$
 \end_inset
 
- and add Gaussian noise of amplitude 
+ and add Gaussian noise of amplitude
 \begin_inset Formula $\sigma=0.05$
 \end_inset
 
 .
- A flat prior is used for 
+ A flat prior is used for
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
@@ -1465,36 +1465,36 @@ reference "eq:like"
 
 \end_inset
 
- we choose a starting guess of 
+ we choose a starting guess of
 \begin_inset Formula $\theta=2$
 \end_inset
 
- for the norm's order and a Gaussian prior with 
+ for the norm's order and a Gaussian prior with
 \begin_inset Formula $\sigma_{\theta}=0.5$
 \end_inset
 
  around this value together with a positivity constraint.
- The initial sampling domain in the square 
+ The initial sampling domain in the square
 \begin_inset Formula $x_{1},x_{2}\in(0,2)$
 \end_inset
 
 .
  The comparison between MCMC and delayed acceptance MCMC is made once for
- fixed 
+ fixed
 \begin_inset Formula $\theta=2$
 \end_inset
 
  (Gaussian likelihood) and then for a hierarchical model with a random walk
- also in 
+ also in
 \begin_inset Formula $\theta$
 \end_inset
 
 .
- The respective Markov chain with 
+ The respective Markov chain with
 \begin_inset Formula $10.000$
 \end_inset
 
- steps has a correlation length of 
+ steps has a correlation length of
 \begin_inset Formula $\approx10$
 \end_inset
 
@@ -1509,7 +1509,7 @@ reference "fig:Autocorrelation-over-lag"
 
 \end_inset
 
-) and yields a posterior parameter distribution for 
+) and yields a posterior parameter distribution for
 \begin_inset Formula $(x_{1},x_{2})$
 \end_inset
 
@@ -1571,18 +1571,18 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Autocorrelation over lag in MCMC steps for inputs 
+Autocorrelation over lag in MCMC steps for inputs
 \begin_inset Formula $x_{1}$
 \end_inset
 
- (solid) and 
+ (solid) and
 \begin_inset Formula $x_{2}$
 \end_inset
 
  (dashed) in the toy model.
  Top: Gaussian likelihood, bottom: hierarchical model.
  Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
- 
+
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:Autocorrelation-over-lag"
@@ -1647,7 +1647,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Posterior distribution of calibrated parameters 
+Posterior distribution of calibrated parameters
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
@@ -1671,7 +1671,7 @@ name "fig:Top:-Gaussian-likelihood"
 
 \end_inset
 
- 
+
 \end_layout
 
 \end_inset
@@ -1698,17 +1698,17 @@ reference "fig:Top:-Gaussian-likelihood"
 
  show good agreement in the posterior distributions of full MCMC and delayed
  acceptance MCMC.
- Compared to the case with fixed 
+ Compared to the case with fixed
 \begin_inset Formula $\theta=2$
 \end_inset
 
-, the additional freedom in 
+, the additional freedom in
 \begin_inset Formula $\theta$
 \end_inset
 
  in the hierarchical model leads to further exploration of the parameter
  space.
- The posterior of 
+ The posterior of
 \begin_inset Formula $\theta$
 \end_inset
 
@@ -1725,12 +1725,12 @@ reference "fig:Posterior-distribution-of"
 
 .
  The similarity to the prior distribution shows that the data doesn't yield
- new information on how to choose 
+ new information on how to choose
 \begin_inset Formula $\theta$
 \end_inset
 
 .
- 
+
 \end_layout
 
 \begin_layout Standard
@@ -1760,17 +1760,17 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Posterior distribution of the fractional order 
+Posterior distribution of the fractional order
 \begin_inset Formula $\theta$
 \end_inset
 
- in the loss function with 
+ in the loss function with
 \begin_inset Formula $\ell^{\theta}$
 \end_inset
 
  norm.
  Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
- 
+
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:Posterior-distribution-of"
@@ -1820,16 +1820,16 @@ a
  and depends on several input parameters.
  For simplicity, and to limit computational resources, we select only two
  of the six scalar inputs and use fixed values for the remaining four.
- Namely, the chosen parameter 
+ Namely, the chosen parameter
 \begin_inset Formula $x_{1}=K_{\mathrm{light}}$
 \end_inset
 
- and 
+ and
 \begin_inset Formula $x_{2}=\mu_{0}$
 \end_inset
 
  appear in the growth rate inside the diatom model.
- The latter is given by the 
+ The latter is given by the
 \begin_inset Quotes eld
 \end_inset
 
@@ -1850,23 +1850,23 @@ literal "false"
 \end_inset
 
  for photosynthesis,
-\begin_inset Formula 
+\begin_inset Formula
 \[
 \mu(t)\propto\mu_{0}\frac{1}{D}\int_{0}^{D}\frac{I(t)e^{-\lambda(t)z}}{\sqrt{K_{\mathrm{light}}^{\,2}+I^{2}(t)e^{-2\lambda(t)z}}}\d z,
 \]
 
 \end_inset
 
-where 
+where
 \begin_inset Formula $D$
 \end_inset
 
- is the water depth, 
+ is the water depth,
 \begin_inset Formula $I(t)$
 \end_inset
 
  the radiation intensity prescribed at the water surface.
- Light attenuation 
+ Light attenuation
 \begin_inset Formula $\lambda(t)\equiv\lambda_{S}C_{\mathrm{chl}}(t)$
 \end_inset
 
@@ -1878,7 +1878,7 @@ where
 \emph on
 a
 \emph default
- concentration 
+ concentration
 \begin_inset Formula $C_{\mathrm{chl}}(t)$
 \end_inset
 
@@ -1886,44 +1886,44 @@ a
  Equations are solved within a Lagrangian setup, following water parcels
  that travel down the Elbe river.
  Data points of the local chlorophyll time series simulated at Geesthacht
- Weir are made up by chlorophyll 
+ Weir are made up by chlorophyll
 \emph on
 a
 \emph default
  values at the Lagrangian trajectories' end points.
- These values are the functional model output 
+ These values are the functional model output
 \begin_inset Formula $y(t)$
 \end_inset
 
- for which the model is calibrated with respect to measurements 
+ for which the model is calibrated with respect to measurements
 \begin_inset Formula $y_{\mathrm{ref}}(t)$
 \end_inset
 
 .
  As the parameters are positive and limited by reasonable maximum values
  from domain knowledge, we use a half-sided Cauchy (Lorentz) prior
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 p(x_{k})=\frac{2}{\pi}\frac{b_{k}}{b_{k}^{\,2}+x_{k}^{\,2}}\,\mathrm{\,for\,}\,x_{k}>0,\quad p(x_{k})=0\,\mathrm{\,for\,}\,x_{k}\leq0.
 \end{equation}
 
 \end_inset
 
-Here we choose a scale value 
+Here we choose a scale value
 \begin_inset Formula $x_{k}^{\ast}$
 \end_inset
 
- for which 
+ for which
 \begin_inset Formula $P^{\ast}=90\%$
 \end_inset
 
- of the probability volume is contained within 
+ of the probability volume is contained within
 \begin_inset Formula $x_{k}<x_{k}^{\ast}$
 \end_inset
 
 .
  Considering the cumulative distribution, we have to set
-\begin_inset Formula 
+\begin_inset Formula
 \begin{equation}
 b_{k}=\frac{x_{k}^{\ast}}{\tan\left(\frac{\pi}{2}P^{\star}\right)}
 \end{equation}
@@ -1934,7 +1934,7 @@ to realize this condition.
 \end_layout
 
 \begin_layout Standard
-As in the case of the toy model, we use 
+As in the case of the toy model, we use
 \begin_inset Formula $10.000$
 \end_inset
 
@@ -1959,7 +1959,7 @@ reference "fig:Top:-Gaussian-likelihood-1"
 \end_inset
 
 .
- The correlation time of 
+ The correlation time of
 \begin_inset Formula $\approx500$
 \end_inset
 
@@ -1977,17 +1977,17 @@ reference "fig:Top:-Gaussian-likelihood-1"
 \end_inset
 
  at about one third of the overall computation time.
- There one also sees the issue of high correlation between 
+ There one also sees the issue of high correlation between
 \begin_inset Formula $K_{\mathrm{light}}$
 \end_inset
 
- and 
+ and
 \begin_inset Formula $\mu_{0}$
 \end_inset
 
  in the posterior of the calibration, making Gibbs sampling inefficient
  in that particular case.
- 
+
 \end_layout
 
 \begin_layout Standard
@@ -2017,18 +2017,18 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Autocorrelation over lag in MCMC steps for inputs 
+Autocorrelation over lag in MCMC steps for inputs
 \begin_inset Formula $K_{\mathrm{light}}$
 \end_inset
 
- (solid) and 
+ (solid) and
 \begin_inset Formula $\mu_{0}$
 \end_inset
 
  (dashed) in the riverine diatom model.
  Top: Gaussian likelihood, bottom: hierarchical model.
  Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
- 
+
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:Autocorrelation-over-lag-1"
@@ -2078,7 +2078,7 @@ status open
 Posterior distribution of calibrated parameters for the riverine diatom
  model.
  Left: full MCMC, right: delayed acceptance MCMC with GP+KL surrogate.
- 
+
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:Top:-Gaussian-likelihood-1"
@@ -2115,7 +2115,7 @@ We have illustrated the application of function-valued surrogates to delayed
  additional parameters exact.
  In particular, the fractional order of the norm appearing in the cost function
  has been left free, which is useful for robust model calibration.
- 
+
 \end_layout
 
 \begin_layout Standard
@@ -2134,13 +2134,13 @@ The method was applied to a toy model and an application case of a riverine
 \begin_layout Standard
 The described approach is not immune to the curse of dimensionality.
  On the one hand, the number of required GP regressors grows linearly with
- the effective dimension of the 
+ the effective dimension of the
 \emph on
 output
 \emph default
  function space.
  Since evaluation is fast and parallelizable, this is a minor issue in practice.
- On the other hand, increasing the dimension of the 
+ On the other hand, increasing the dimension of the
 \emph on
 input
 \emph default
@@ -2157,7 +2157,7 @@ Acknowledgments
 \end_layout
 
 \begin_layout Standard
-This study is a contribution to the 
+This study is a contribution to the
 \emph on
 Reduced Complexity Models
 \emph default
