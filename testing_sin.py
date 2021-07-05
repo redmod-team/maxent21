@@ -391,7 +391,7 @@ def surrogate_kl(X):
             mu, _ = model.predict(X, full_cov=False)
             mus[k, :] = mu.flat
 
-        ymu, yvars = kl.lift(mus, vars)
+        ymu = kl.lift(mus)
         ycost = cost_y(ymu)
 
     return ycost, 0.0  # TODO: variance
@@ -439,7 +439,7 @@ def surrogate_kl_hi(X, th):
             mu, _ = model.predict(X, full_cov=False)
             mus[k, :] = mu.flat
 
-        ymu, yvars = kl.lift(mus, vars)
+        ymu = kl.lift(mus)
         ycost = cost_y_hi(ymu, th)
 
     return ycost, 0.0  # TODO: variance
