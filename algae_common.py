@@ -15,9 +15,9 @@ home_dir = os.path.expanduser('~/run/algae/vecma21')
 with open(os.path.join(template_dir, 'input.txt'), 'r') as f:
     template = f.read()
 
-keys = ['K_light', 'mu_0', 'f_Si', 'lambda_S', 'a', 'sigma_0']
-mean = np.array([41.9, 1.19, 0.168, 0.0118, 1.25, 0.15])
-maxval = np.array([500.0, 3.5, 0.4, 0.05, 2.0, 2.0])
+keys = ['K_light', 'mu_0', 'f_Si', 'lambda_S', 'a', 'sigma_0', 'sig_ch']
+mean = np.array([41.9, 1.19, 0.168, 0.0118, 1.25, 0.15, 5.0])
+maxval = np.array([500.0, 3.5, 0.4, 0.05, 2.0, 2.0, 100.0])
 
 nvar = 2
 ntout = 232
@@ -26,7 +26,7 @@ nsamp0 = 128
 fac_norm = 1.0/200.0  # To get values of O(1)
 fac_meas = 5.2  # Conversion from Chla_Fluor to Chlorphyl concentration
 
-sig_ch = 5.0  # Basic uncertainty
+sig_ch = mean[-1]  # Basic uncertainty
 sig2meas = (sig_ch*fac_norm)**2  # Measurement variance
 
 x0test = np.array([447.0, 1.9])
@@ -118,9 +118,8 @@ def cost_y(y):
     return np.sum(residuals_y(y)**2, 1)*1.0/ntout
 
 
-thstar = np.array([500.0, 3.5, 0.4, 0.05, 2.0, 2.0])
 Pstar = 0.9
-b = thstar/np.tan(np.pi/2*Pstar)
+b = maxval/np.tan(np.pi/2*Pstar)
 
 def prior(x):
     return 1.0/np.pi*b[:nvar]/(b[:nvar]**2 + x**2)
