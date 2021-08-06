@@ -12,11 +12,14 @@ base_dir = '/dev/shm/calbert/vecma21'
 exe = os.path.expanduser('~/src/DiatomGrowth/main.x')
 home_dir = os.path.expanduser('~/run/algae/vecma21')
 
-with open(os.path.join(template_dir, 'input.txt'), 'r') as f:
-    template = f.read()
+try:
+    with open(os.path.join(template_dir, 'input.txt'), 'r') as f:
+        template = f.read()
+except:
+    print('Template dir not found')
 
 keys = ['K_light', 'mu_0', 'f_Si', 'lambda_S', 'a', 'sigma_0', 'sig_ch']
-mean = np.array([41.9, 1.19, 0.168, 0.0118, 1.25, 0.15, 5.0])
+mean = np.array([41.9, 1.19, 0.168, 0.0118, 1.25, 0.15, 24.5])
 maxval = np.array([500.0, 3.5, 0.4, 0.05, 2.0, 2.0, 100.0])
 
 nvar = 7
@@ -94,16 +97,18 @@ def plot_kl(kl):
     ax.legend(['mean'] + [f'$\\varphi_{k+1}$' for k in range(3)])
     fig.tight_layout()
 
+try:
+    data_meas = read_data(
+        os.path.join(template_dir, 'INPUT_DATA', 'GEESTHACHT',
+            'Chla_Fluor_2001.txt'))
 
-data_meas = read_data(
-    os.path.join(template_dir, 'INPUT_DATA', 'GEESTHACHT',
-        'Chla_Fluor_2001.txt'))
+    yref = fac_meas*fac_norm*data_meas['Chla_Fluor'].values
 
-yref = fac_meas*fac_norm*data_meas['Chla_Fluor'].values
-
-k = GPy.kern.Matern52(nvar, ARD=False, lengthscale=0.2, variance=1)
-#mf = GPy.mappings.Linear(nvar, 1)
-mf = GPy.mappings.Constant(nvar, 1)
+    k = GPy.kern.Matern52(nvar, ARD=False, lengthscale=0.2, variance=1)
+    #mf = GPy.mappings.Linear(nvar, 1)
+    mf = GPy.mappings.Constant(nvar, 1)
+except:
+    print("Couldn't read measurement data")
 
 def residuals(x, run_dir):
     return yref - blackbox(x, run_dir)

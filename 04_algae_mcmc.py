@@ -8,7 +8,7 @@ from time import time
 from multiprocessing import Process
 from algae_common import *
 
-proc = [0, 8]
+proc = [8, 16]
 
 niwarm = 5
 nwarm = 500
@@ -49,9 +49,9 @@ def start_run(run_dir, kproc):
         acc = np.zeros((nstep + 1, nvar), dtype=bool)  # Acceptance rates
         r = np.log(np.random.rand(nstep, nvar))  # Pre-computed random numbers
         lpold = (
-            -ntout*cost(x[0, :], run_dir)/(2.0*sig2meas) 
+            -ntout*cost(x[0, :], run_dir)/(2.0*sig2meas)
             + np.log(prior(x[0, :])).sum()
-            + 0.5*ntout*np.log(sig2meas)
+            - 0.5*ntout*np.log(sig2meas)
         )
 
         for k in range(nwarm):
@@ -65,9 +65,9 @@ def start_run(run_dir, kproc):
                 if nvar == len(mean):
                     sig2meas = (xguess[-1]*fac_norm)**2  # Measurement variance
                 lpnew = (
-                    -ntout*cost(xguess, run_dir)/(2.0*sig2meas) 
+                    -ntout*cost(xguess, run_dir)/(2.0*sig2meas)
                     + np.log(prior(xguess)).sum()
-                    + 0.5*ntout*np.log(sig2meas)
+                    - 0.5*ntout*np.log(sig2meas)
                 )
                 A = lpnew - lpold
                 if A >= r[k, i]:
@@ -76,6 +76,7 @@ def start_run(run_dir, kproc):
                     acc[k,i] = True
                 if nvar == len(mean):
                     sig2meas = (x[k+1, -1]*fac_norm)**2  # Measurement variance
+            print(x[k+1, -1])
 
         target_rate = 0.35
         acceptance_rate = np.sum(acc[:nwarm], 0)/nwarm
@@ -101,9 +102,9 @@ def start_run(run_dir, kproc):
             if nvar == len(mean):
                 sig2meas = (xguess[-1]*fac_norm)**2  # Measurement variance
             lpnew = (
-                -ntout*cost(xguess, run_dir)/(2.0*sig2meas) 
+                -ntout*cost(xguess, run_dir)/(2.0*sig2meas)
                 + np.log(prior(xguess)).sum()
-                + 0.5*ntout*np.log(sig2meas)
+                - 0.5*ntout*np.log(sig2meas)
             )
             A = lpnew - lpold
             if A >= r[k, i]:
