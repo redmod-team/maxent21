@@ -8,11 +8,11 @@ from time import time
 from multiprocessing import Process
 from algae_common import *
 
-proc = [0, 4]
+proc = [0, 8]
 
 niwarm = 5
 nwarm = 500
-nmc = 10000
+nmc = 1000
 
 def main():
     workers = []
@@ -29,6 +29,7 @@ def main():
         worker.join()
 
 def start_run(run_dir, kproc):
+    global sig2meas
     np.random.seed(kproc)
     tic = time()
     # MCMC
@@ -37,7 +38,8 @@ def start_run(run_dir, kproc):
 
     # Input values and step sizes
     x = np.empty((nstep + 1, nvar))
-    x[0, :] = np.load('ropt.npy')[:nvar]
+    #x[0, :] = np.load('ropt.npy')[:nvar]
+    x[0, :] = mean[:nvar]
     sigprior = np.sqrt(sig2meas)*x[0, :]
     dx = np.random.randn(nstep, nvar)*sigprior
     xguess = np.empty(nvar)
@@ -46,7 +48,12 @@ def start_run(run_dir, kproc):
     for ki in range(niwarm):
         acc = np.zeros((nstep + 1, nvar), dtype=bool)  # Acceptance rates
         r = np.log(np.random.rand(nstep, nvar))  # Pre-computed random numbers
-        lpold = -cost(x[0, :], run_dir)/(2.0*sig2meas) + np.log(prior(x[0, :])).sum()
+        lpold = (
+            -ntout*cost(x[0, :], run_dir)/(2.0*sig2meas) 
+            + np.log(prior(x[0, :])).sum()
+            + 0.5*ntout*np.log(sig2meas)
+        )
+
         for k in range(nwarm):
             if (k%10 == 0):
                 print(k)
@@ -55,12 +62,20 @@ def start_run(run_dir, kproc):
                 xguess[:] = x[k+1, :]
                 xguess[i] += dx[k, i]
                 xguess[i] = np.abs(xguess[i])  # Mirror negative values
-                lpnew = -cost(xguess, run_dir)/(2.0*sig2meas) + np.log(prior(xguess)).sum()
+                if nvar == len(mean):
+                    sig2meas = (xguess[-1]*fac_norm)**2  # Measurement variance
+                lpnew = (
+                    -ntout*cost(xguess, run_dir)/(2.0*sig2meas) 
+                    + np.log(prior(xguess)).sum()
+                    + 0.5*ntout*np.log(sig2meas)
+                )
                 A = lpnew - lpold
                 if A >= r[k, i]:
                     x[k+1, :] = xguess
                     lpold = lpnew
                     acc[k,i] = True
+                if nvar == len(mean):
+                    sig2meas = (x[k+1, -1]*fac_norm)**2  # Measurement variance
 
         target_rate = 0.35
         acceptance_rate = np.sum(acc[:nwarm], 0)/nwarm
@@ -83,12 +98,20 @@ def start_run(run_dir, kproc):
             xguess[:] = x[k+1, :]
             xguess[i] += dx[k,i]
             xguess[i] = np.abs(xguess[i])  # Mirror negative values
-            lpnew = -cost(xguess, run_dir)/(2.0*sig2meas) + np.log(prior(xguess)).sum()
+            if nvar == len(mean):
+                sig2meas = (xguess[-1]*fac_norm)**2  # Measurement variance
+            lpnew = (
+                -ntout*cost(xguess, run_dir)/(2.0*sig2meas) 
+                + np.log(prior(xguess)).sum()
+                + 0.5*ntout*np.log(sig2meas)
+            )
             A = lpnew - lpold
             if A >= r[k, i]:
                 x[k+1, :] = xguess
                 lpold = lpnew
                 acc[k,i] = True
+            if nvar == len(mean):
+                sig2meas = (x[k+1, -1]*fac_norm)**2  # Measurement variance
     toc = time() - tic
 
     plt.figure()

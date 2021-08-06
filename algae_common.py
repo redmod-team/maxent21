@@ -19,7 +19,7 @@ keys = ['K_light', 'mu_0', 'f_Si', 'lambda_S', 'a', 'sigma_0', 'sig_ch']
 mean = np.array([41.9, 1.19, 0.168, 0.0118, 1.25, 0.15, 5.0])
 maxval = np.array([500.0, 3.5, 0.4, 0.05, 2.0, 2.0, 100.0])
 
-nvar = 2
+nvar = 7
 ntout = 232
 nsamp0 = 128
 

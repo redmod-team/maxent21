@@ -1,6 +1,6 @@
 import numpy as np
 
-def mcmc(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate=None):
+def mcmc(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate=None, vary_sig=None):
     if cost_surrogate:  # Delayed acceptance
         return mcmc_da(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate)
 
@@ -21,12 +21,14 @@ def mcmc(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate=None):
                 xguess[:] = x[k+1, :]
                 xguess[i] += dx[k,i]
                 xguess[i] = np.abs(xguess[i])
+                if vary_sig: vary_sig(xguess)
                 lpnew = -cost(xguess)
                 A = lpnew - lpold
                 if A >= r[k,i]:
                     x[k+1, :] = xguess
                     lpold = lpnew
                     acc[k,i] = True
+                if vary_sig: vary_sig(x[k+1, :])
 
         acceptance_rate = np.sum(acc[:nwarm], 0)/nwarm
         print('Warmup acceptance rate: ', acceptance_rate)
@@ -44,12 +46,14 @@ def mcmc(x0, dx, niwarm, nwarm, nmc, cost, cost_surrogate=None):
             xguess[:] = x[k+1, :]
             xguess[i] += dx[k,i]
             xguess[i] = np.abs(xguess[i])
+            if vary_sig: vary_sig(xguess)
             lpnew = -cost(xguess)
             A = lpnew - lpold
             if A >= r[k, i]:
                 x[k+1, :] = xguess
                 lpold = lpnew
                 acc[k,i] = True
+            if vary_sig: vary_sig(x[k+1, :])
 
     return x, acc
 
