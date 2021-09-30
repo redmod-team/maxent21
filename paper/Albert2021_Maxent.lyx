@@ -550,7 +550,7 @@ literal "false"
 \begin_inset Formula 
 \begin{align}
 \bar{f}(\boldsymbol{x}^{\ast}) & =m(\boldsymbol{x}^{\ast})+K^{\ast}(K+\sigma_{n}I)^{-1}\boldsymbol{y},\\
-\mathrm{var}[\bar{f}(\boldsymbol{x}^{\ast})] & =K^{\ast\ast}-K^{\ast}(K+\sigma_{n}I)^{-1}K^{\ast T},
+\mathrm{var}[f(\boldsymbol{x}^{\ast})] & =K^{\ast\ast}-K^{\ast}(K+\sigma_{n}I)^{-1}K^{\ast T},
 \end{align}
 
 \end_inset
@@ -621,14 +621,14 @@ literal "false"
 \begin_inset Formula $\boldsymbol{x}^{\ast}$
 \end_inset
 
- given existing training data
+ given existing training data 
 \begin_inset Formula $\mathcal{D}$
 \end_inset
 
 ,
 \begin_inset Formula 
 \begin{align}
-a_{\mathrm{EI}}(\boldsymbol{x}^{\star}) & =E[\mathrm{min}(0,\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})|\boldsymbol{x}^{\ast},\mathcal{D}]\nonumber \\
+a_{\mathrm{EI}}(\boldsymbol{x}^{\star}) & =E[\mathrm{max}(0,\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})|\boldsymbol{x}^{\ast},\mathcal{D}]\nonumber \\
  & =(\bar{f}(\boldsymbol{x}^{\ast})-\hat{f})\Phi(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}[f(\boldsymbol{x}^{\ast})])+\mathrm{var}[f(\boldsymbol{x}^{\ast})]\mathcal{N}(\hat{f};\bar{f}(\boldsymbol{x}^{\ast}),\mathrm{var}[f(\boldsymbol{x}^{\ast})]),
 \end{align}
 
@@ -725,14 +725,14 @@ Actual computation is, as usually, performed in the logarithmic space with
 
 If this function is fixed, it is most convenient to just directly build
  a surrogate 
-\begin_inset Formula $\tilde{\ell}(\boldsymbol{y}|\boldsymbol{x})$
+\begin_inset Formula $\tilde{\ell}(\boldsymbol{x}|\boldsymbol{y})$
 \end_inset
 
- for the likelihood 
-\begin_inset Formula $\ell(\boldsymbol{y}|\boldsymbol{x})$
+ for the log-posterior 
+\begin_inset Formula $\ell(\boldsymbol{x}|\boldsymbol{y})$
 \end_inset
 
- and add the corresponding prior to model the posterior.
+ including the corresponding prior.
 \end_layout
 
 \begin_layout Section
@@ -782,7 +782,7 @@ literal "false"
 \begin_inset Formula $f_{k}(\boldsymbol{x})$
 \end_inset
 
- and keeping the dependencies on
+ and keeping the dependencies on 
 \begin_inset Formula $\btheta$
 \end_inset
 
@@ -801,7 +801,7 @@ literal "false"
 
 \begin_layout Standard
 As an example we use a more general noise model than the usual Gaussian
- likelihood that builds on arbitrary
+ likelihood that builds on arbitrary 
 \begin_inset Formula $\ell^{\theta}$
 \end_inset
 
@@ -843,11 +843,11 @@ p(\boldsymbol{y}|\boldsymbol{x},\theta)=\frac{1}{2\sqrt{2}\sigma\,\Gamma(1+\thet
 
 \end_inset
 
-with the normalized
+with the normalized 
 \begin_inset Formula $\ell^{\theta}$
 \end_inset
 
- norm to the power of
+ norm to the power of 
 \begin_inset Formula $\theta$
 \end_inset
 
@@ -1043,7 +1043,7 @@ literal "false"
 \end_inset
 
 ).
- The question at which
+ The question at which 
 \begin_inset Formula $r$
 \end_inset
 
@@ -1444,7 +1444,7 @@ We choose reference values
 \end_inset
 
 .
- A flat prior is used for
+ A flat prior is used for 
 \begin_inset Formula $\boldsymbol{x}$
 \end_inset
 
@@ -1464,7 +1464,7 @@ reference "eq:like"
 \begin_inset Formula $\theta=2$
 \end_inset
 
- for the norm's order and a Gaussian prior with
+ for the norm's order and a Gaussian prior with 
 \begin_inset Formula $\sigma_{\theta}=0.5$
 \end_inset
 
@@ -1794,7 +1794,7 @@ The final application of the described method is on a riverine diatom model
 
 \begin_inset CommandInset citation
 LatexCommand cite
-key "callies2008_CalibrationUncertaintyAnalysis,scharfe2009_SimpleLagrangianModel,callies2021_ParameterDependencesArising"
+key "callies2008_CalibrationUncertaintyAnalysis,scharfe2009_SimpleLagrangianModel"
 literal "false"
 
 \end_inset
@@ -1977,7 +1977,7 @@ reference "fig:Top:-Gaussian-likelihood-1"
 \begin_inset Formula $K_{\mathrm{light}}$
 \end_inset
 
- and
+ and 
 \begin_inset Formula $\mu_{0}$
 \end_inset
 
